@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <WebmaniaBR_NFe>
+            <version>1.0</version>
+        </WebmaniaBR_NFe>
+    </modules>
+    <global>
+        <models>
+            <nfe>
+                <rewrite>
+                    <observer>WebmaniaBR_NFe_Model_Observer</observer>
+                </rewrite>
+            </nfe>
+        </models>
+        <blocks>
+            <adminhtml>
+                <rewrite>
+                    <sales_order_grid>WebmaniaBR_NFe_Block_Sales_Order_Grid</sales_order_grid>
+                </rewrite>
+            </adminhtml>
+        </blocks> 
+    </global>
+    <frontend>
+        <routers>
+            <nfe>
+                <use>standard</use>
+                <args>
+                    <module>WebmaniaBR_NFe</module>
+                    <frontName>nfe</frontName>
+                </args>
+            </nfe>
+        </routers>   
+    </frontend>
+</config>

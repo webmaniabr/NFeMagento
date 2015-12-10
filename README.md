@@ -21,7 +21,7 @@ Copie e cole as seguintes pastas e arquivos para a sua instalação do Magento:
 
 Após mover os arquivos para as suas respectivas pastas, configure o arquivo ```/app/code/local/WebmaniaBR/NFe/Model/config.php``` com as informações da sua aplicação. Segue abaixo exemplo:
 
-```
+```php
 /* Credenciais da Aplicação */
 $consumerKey = 'libDIsUqeSbZ4qY3i7fRwjeQBBwyjp44';
 $consumerSecret = 'S6GtVsdNwg5IWGbQJSfSEHx6BSieB8J8eO318RbLvq4ye25L';
@@ -41,7 +41,7 @@ $origem = 0;
 
 Para ativar a emissão automática é necessário chamar a função no momento em que o pedido alterar o status. Para isso localize a função **_setState()** no arquivo ```/app/code/core/Mage/Sales/Model/Order.php``` e altere para o seguinte código:
 
-```
+```php
 protected function _setState($state, $status = false, $comment = '',
     $isCustomerNotified = null, $shouldProtectState = false)
 {

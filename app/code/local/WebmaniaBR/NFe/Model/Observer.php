@@ -73,7 +73,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
             $response = self::connect_webmaniabr( 'POST', 'https://webmaniabr.com/api/1/nfe/emissao/', $data );
             /* print_r($response); exit; // Debug */
-
+            return $response;
         
         }
     }
@@ -107,6 +107,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
         $response = curl_exec($rest);
         curl_close($rest);
 
+        /* print_r($response); exit; // Debug */
         return json_decode($response);
 
     }

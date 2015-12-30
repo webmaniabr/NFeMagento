@@ -6,7 +6,7 @@ Documentação: https://webmaniabr.com/docs/rest-api-nfe/
 
 ## Requisitos
 
-- Escolha um plano que se adeque as necessidades da sua empresa. Para saber mais: http://webmania.me/1kDM9hi
+- Escolha um plano que se adeque as necessidades da sua empresa. Para saber mais: https://webmaniabr.com/start/nota-fiscal-eletronica/
 - Obtenha as credenciais de acesso da sua aplicação.
 - Instale o módulo da WebmaniaBR® e configure conforme instruções.
 

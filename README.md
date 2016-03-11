@@ -110,7 +110,7 @@ Na pasta ```/app/design/``` possui exemplos de como deve ser a página Finalizar
 Você pode gerenciar todas as Notas Fiscais e realizar a impressão do Danfe no painel da WebmaniaBR®. Simples e fácil.
 
 <p align="center">
-<img src="https://webmaniabr.com/wp-content/themes/wmbr/img/nf01.jpg">
+<img src="https://webmaniabr.com/wp-content/themes/wmbr/img/nf07.jpg">
 </p>
 
 ## Suporte

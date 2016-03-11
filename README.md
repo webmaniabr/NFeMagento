@@ -1,6 +1,6 @@
 # NFeMagento - Nota Fiscal para Magento
 
-Emissão automática ou Manual de Nota Fiscal Eletrônica para Magento através da REST API da WebmaniaBR®. Emita as suas Nota Fiscais sempre que receber um pagamento ou no momento que desejar.
+Emissão automática ou Manual de Nota Fiscal Eletrônica para Magento através da REST API da WebmaniaBR®. Emita as suas Nota Fiscais sempre que receber um pagamento ou somente no momento que for enviar o produto.
 
 Documentação: https://webmaniabr.com/docs/rest-api-nfe/ 
 

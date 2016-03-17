@@ -23,10 +23,10 @@ Após mover os arquivos para as suas respectivas pastas, configure o arquivo ```
 
 ```php
 /* Credenciais da Aplicação */
-$consumerKey = 'libDIsUqeSbZ4qY3i7fRwjeQBBwyjp44';
-$consumerSecret = 'S6GtVsdNwg5IWGbQJSfSEHx6BSieB8J8eO318RbLvq4ye25L';
-$accessToken = 'XX-zykM818Nc6RmHgDyazxhaCmFHehR77mvQvmYbO6GCg43xPCO';
-$accessTokenSecret = 'KnRBlvwE2rXObZPk8VORPldqcqufHk1BXIkyNs7DlDrzUHIP';
+$consumerKey = 'SEUCONSUMERKEY';
+$consumerSecret = 'SEUCONSUMERSECRET';
+$accessToken = 'SEUACCESSTOKEN';
+$accessTokenSecret = 'SEUTOKENSECRET';
 
 /* Configurar Emissão */
 $executar_quando = 'processing';

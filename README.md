@@ -16,7 +16,7 @@ Copie e cole as seguintes pastas e arquivos para a sua instalação do Magento:
 
 ```
 /app/code/local/WebmaniaBR/
-/app/code/etc/WebmaniaBR_NFE.xml
+/app/code/etc/modules/WebmaniaBR_NFE.xml
 ```
 
 Após mover os arquivos para as suas respectivas pastas, configure o arquivo ```/app/code/local/WebmaniaBR/NFe/Model/config.php``` com as informações da sua aplicação. Segue abaixo exemplo:

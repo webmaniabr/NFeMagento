@@ -97,7 +97,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
         $rest = curl_init();
         curl_setopt($rest, CURLOPT_CONNECTTIMEOUT , 300); 
         curl_setopt($rest, CURLOPT_TIMEOUT, 300);
-        curl_setopt($rest, CURLOPT_URL, $endpoint);
+        curl_setopt($rest, CURLOPT_URL, $endpoint.'?time='.time());
         curl_setopt($rest, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($rest, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($rest, CURLOPT_SSL_VERIFYHOST, false);

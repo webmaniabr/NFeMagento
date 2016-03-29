@@ -60,6 +60,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
                     'nome' => $item->getName(),
                     'sku' => $item->getSku(),
                     'ncm' => $ncm,
+                    'cest' => $cest,
                     'quantidade' => (int) $item->getData('qty_ordered'),
                     'unidade' => 'UN',
                     'peso' => number_format($item->getWeight(), 3, '.', ''), // Peso em KG. Ex: 800 gramas = 0.800 KG

@@ -33,6 +33,7 @@ $executar_quando = 'processing';
 $natureza_operacao = 'Venda de produção do estabelecimento';
 $ambiente = 1; 
 $ncm = '6109.10.00'; 
+$cest = '28.038.00';
 $classe_imposto = 'REF1637'; 
 $origem = 0;
 ```

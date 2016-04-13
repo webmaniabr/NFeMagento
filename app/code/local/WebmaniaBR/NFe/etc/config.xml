@@ -21,15 +21,15 @@
             </adminhtml>
         </blocks> 
     </global>
-    <frontend>
+    <admin>
         <routers>
             <nfe>
-                <use>standard</use>
+                <use>admin</use>
                 <args>
                     <module>WebmaniaBR_NFe</module>
                     <frontName>nfe</frontName>
                 </args>
             </nfe>
         </routers>   
-    </frontend>
+    </admin>
 </config>

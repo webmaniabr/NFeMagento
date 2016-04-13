@@ -1,4 +1,4 @@
-<?
+<?php
 
 class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
 {

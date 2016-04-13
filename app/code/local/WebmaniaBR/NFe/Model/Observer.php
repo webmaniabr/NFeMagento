@@ -1,4 +1,4 @@
-<?
+<?php
 require_once 'Mage/Sales/Model/Observer.php';
 class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
     public function emitirNfe($order, $state = false, $status = false, $force = false)

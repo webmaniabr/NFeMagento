@@ -1,4 +1,5 @@
-<?
+<?php
+
 class WebmaniaBR_NFe_Block_Sales_Order_Grid extends Mage_Adminhtml_Block_Sales_Order_Grid
 {   
     protected function _prepareMassaction()

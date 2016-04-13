@@ -1,4 +1,4 @@
-<?
+<?php
 
 class WebmaniaBR_Nfe_Adminhtml_IndexController extends Mage_Adminhtml_Controller_Action
 {

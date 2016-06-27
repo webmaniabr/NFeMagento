@@ -4,6 +4,7 @@ Através do emissor de Nota Fiscal da WebmaniaBR®, você conta com a emissão e
 
 - Emissor de NF-e da WebmaniaBR®: [Saiba mais](https://webmaniabr.com/smartsales/nota-fiscal-eletronica/)
 - Documentação da REST API: [Visualizar](https://webmaniabr.com/docs/rest-api-nfe/)
+- **Módulo compatível com as versões 1.7, 1.8, 1.9, 2.0 e 2.2**
 
 ## Requisitos
 

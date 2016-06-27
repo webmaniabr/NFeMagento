@@ -1,14 +1,14 @@
 # NFeMagento - Nota Fiscal para Magento
 
-Emissão automática ou Manual de Nota Fiscal Eletrônica para Magento através da REST API da WebmaniaBR®. Emita as suas Nota Fiscais sempre que receber um pagamento ou somente no momento em que for enviar os produtos.
+Através do emissor de Nota Fiscal da WebmaniaBR®, você conta com a emissão e arquivamento das suas notas fiscais, cálculo automático de impostos, geração do Danfe para impressão e envio automático de e-mails para os clientes. Instale o módulo grátis do Magento e contrate um dos planos de Nota Fiscal Eletrônica da WebmaniaBR® a partir de R$29,90/mês: [Assine agora mesmo](https://webmaniabr.com/smartsales/nota-fiscal-eletronica/).
 
-Documentação: https://webmaniabr.com/docs/rest-api-nfe/ 
+- Emissor de NF-e da WebmaniaBR®: [Saiba mais](https://webmaniabr.com/smartsales/nota-fiscal-eletronica/)
+- Documentação da REST API: [Visualizar](https://webmaniabr.com/docs/rest-api-nfe/)
 
 ## Requisitos
 
-- Escolha um plano que se adeque as necessidades da sua empresa. Para saber mais: https://webmaniabr.com/start/nota-fiscal-eletronica/
-- Obtenha as credenciais de acesso da sua aplicação.
-- Instale o módulo da WebmaniaBR® e configure conforme instruções.
+- Contrate um dos planos de Nota Fiscal Eletrônica da WebmaniaBR® a partir de R$29,90/mês: [Assine agora mesmo](https://webmaniabr.com/smartsales/nota-fiscal-eletronica/).
+- Instale o módulo grátis do Magento da WebmaniaBR® e configure conforme instruções.
 
 ## Instalação do Módulo
 
@@ -37,6 +37,13 @@ $cest = '28.038.00';
 $classe_imposto = 'REF1637'; 
 $origem = 0;
 ```
+## Emissão de Nota Fiscal Manual
+
+Caso deseje, também é possível realizar a emissão da Nota Fiscal Eletrônica de forma manual no painel de controle Magento. Após instalado o módulo, automaticamente será ativado a opção **Emitir NF-e** nas ações gerais dos pedidos.
+
+<p align="center">
+<img src="https://webmaniabr.com/wp-content/uploads/2015/12/img_5666427f8ea34.png">
+</p>
 
 ## Ativar Emissão Automática
 
@@ -76,14 +83,6 @@ protected function _setState($state, $status = false, $comment = '',
 }
 ```
 
-## Emissão de Nota Fiscal Manual
-
-Caso deseje, também é possível realizar a emissão da Nota Fiscal Eletrônica de forma manual no painel de controle Magento. Após instalado o módulo, automaticamente será ativado a opção **Emitir NF-e** nas ações gerais dos pedidos.
-
-<p align="center">
-<img src="https://webmaniabr.com/wp-content/uploads/2015/12/img_5666427f8ea34.png">
-</p>
-
 ## Adaptar página Finalizar Compra
 
 Para a emissão correta da Nota Fiscal Eletrônica é importante ter os seguintes campos obrigatórios na página Finalizar Compra:
@@ -116,4 +115,4 @@ Você pode gerenciar todas as Notas Fiscais e realizar a impressão do Danfe no 
 
 ## Suporte
 
-Qualquer dúvida estamos à disposição e abertos para melhorias e sugestões, em breve teremos um fórum para discussões. Qualquer dúvida entre em contato na nossa Central de Atendimento: https://webmaniabr.com/atendimento/.
+Qualquer dúvida entre em contato na nossa [Central de Atendimento](https://webmaniabr.com/atendimento/) ou no e-mail suporte@webmaniabr.com.

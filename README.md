@@ -46,7 +46,7 @@ Caso deseje, também é possível realizar a emissão da Nota Fiscal Eletrônica
 <img src="https://webmaniabr.com/wp-content/uploads/2015/12/img_5666427f8ea34.png">
 </p>
 
-## Ativar Emissão Automática
+## Ativar Emissão Automática (opcional)
 
 Para ativar a emissão automática é necessário chamar a função no momento em que o pedido alterar o status. Para isso localize a função **_setState()** no arquivo ```/app/code/core/Mage/Sales/Model/Order.php``` e altere para o seguinte código:
 
@@ -84,7 +84,7 @@ protected function _setState($state, $status = false, $comment = '',
 }
 ```
 
-## Adaptar página Finalizar Compra
+## Adaptar página Finalizar Compra (opcional)
 
 Para a emissão correta da Nota Fiscal Eletrônica é importante ter os seguintes campos obrigatórios na página Finalizar Compra:
 

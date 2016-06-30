@@ -30,13 +30,13 @@ $accessToken = 'SEUACCESSTOKEN';
 $accessTokenSecret = 'SEUTOKENSECRET';
 
 /* Configurar Emissão */
-$executar_quando = 'processing';
+$executar_quando = 'processing'; // Defina o status de quando o pagamento é confirmado
 $natureza_operacao = 'Venda de produção do estabelecimento';
-$ambiente = 1; 
-$ncm = '6109.10.00'; 
-$cest = '28.038.00';
-$classe_imposto = 'REF1637'; 
-$origem = 0;
+$ambiente = 1; // 1 - Produção ou 2 - Homologação
+$ncm = '6109.10.00'; // NCM dos produtos (Obrigatório)
+$cest = '28.038.00'; // Opcional
+$classe_imposto = 'REF1637'; // Classe de Imposto no painel da WebmaniaBR® (Obrigatório)
+$origem = 0; // Origem dos produtos (verificar documentação da API)
 ```
 ## Emissão de Nota Fiscal Manual
 

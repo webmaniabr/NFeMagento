@@ -70,7 +70,7 @@ Na pasta ```/app/design/``` possui exemplos de como deve ser a página Finalizar
 
 ## Ativar Emissão Automática (opcional)
 
-Para ativar a emissão automática é necessário chamar a função no momento em que o pedido alterar o status. Para isso localize a função **_setState()** no arquivo ```/app/code/core/Mage/Sales/Model/Order.php``` e altere para o seguinte código:
+Para ativar a emissão automática é necessário chamar a função no momento em que o pedido alterar o status. Para isso localize a função **_setState()** no arquivo ```/app/code/core/Mage/Sales/Model/Order.php``` e adicione a linha **Emissão automática de Nota Fiscal** no início da função:
 
 ```php
 protected function _setState($state, $status = false, $comment = '',
@@ -81,28 +81,9 @@ protected function _setState($state, $status = false, $comment = '',
     $notafiscal = new WebmaniaBR_NFe_Model_Observer;
     $notafiscal->emitirNfe( $this, $state, $status );
 
-    // attempt to set the specified state
-    if ($shouldProtectState) {
-        if ($this->isStateProtected($state)) {
-            Mage::throwException(
-                Mage::helper('sales')->__('The Order State "%s" must not be set manually.', $state)
-            );
-        }
-    }
-    $this->setData('state', $state);
-
-    // add status history
-    if ($status) {
-        if ($status === true) {
-            $status = $this->getConfig()->getStateDefaultStatus($state);
-        }
-        $this->setStatus($status);
-        $history = $this->addStatusHistoryComment($comment, false); // no sense to set $status again
-        $history->setIsCustomerNotified($isCustomerNotified); // for backwards compatibility
-    }
-
-
-    return $this;
+    ...
+    ...
+    
 }
 ```
 

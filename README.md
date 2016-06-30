@@ -46,6 +46,28 @@ Caso deseje, também é possível realizar a emissão da Nota Fiscal Eletrônica
 <img src="https://webmaniabr.com/wp-content/uploads/2015/12/img_5666427f8ea34.png">
 </p>
 
+## Adaptar página Finalizar Compra
+
+Para a emissão correta da Nota Fiscal Eletrônica é importante ter os seguintes campos obrigatórios na página Finalizar Compra:
+
+- CPF
+- Nome completo
+- Endereço
+- Número
+- Complemento (caso houver)
+- Bairro
+- Cidade
+- Estado
+- CEP (utilizado como padrão o campo Tax VAT)
+
+Na pasta ```/app/design/``` possui exemplos de como deve ser a página Finalizar Compra e a amostragem dos campos no painel de controle do Magento. Mais informações de configuração você encontra no site Comunidade Magento: http://www.comunidademagento.com.br/portal/adicionando-campos-de-endereco/
+
+**Exemplo de campos na página Finalizar Compra**
+<p><img src="https://webmaniabr.com/wp-content/uploads/2015/12/img_56662bb04a8a0.png"></p>
+
+**Exemplo de amostragem no Back-end**
+<p><img src="https://webmaniabr.com/wp-content/uploads/2015/12/img_56663c7472e3f.png"></p>
+
 ## Ativar Emissão Automática (opcional)
 
 Para ativar a emissão automática é necessário chamar a função no momento em que o pedido alterar o status. Para isso localize a função **_setState()** no arquivo ```/app/code/core/Mage/Sales/Model/Order.php``` e altere para o seguinte código:
@@ -83,28 +105,6 @@ protected function _setState($state, $status = false, $comment = '',
     return $this;
 }
 ```
-
-## Adaptar página Finalizar Compra (opcional)
-
-Para a emissão correta da Nota Fiscal Eletrônica é importante ter os seguintes campos obrigatórios na página Finalizar Compra:
-
-- CPF
-- Nome completo
-- Endereço
-- Número
-- Complemento (caso houver)
-- Bairro
-- Cidade
-- Estado
-- CEP (utilizado como padrão o campo Tax VAT)
-
-Na pasta ```/app/design/``` possui exemplos de como deve ser a página Finalizar Compra e a amostragem dos campos no painel de controle do Magento. Mais informações de configuração você encontra no site Comunidade Magento: http://www.comunidademagento.com.br/portal/adicionando-campos-de-endereco/
-
-**Exemplo de campos na página Finalizar Compra**
-<p><img src="https://webmaniabr.com/wp-content/uploads/2015/12/img_56662bb04a8a0.png"></p>
-
-**Exemplo de amostragem no Back-end**
-<p><img src="https://webmaniabr.com/wp-content/uploads/2015/12/img_56663c7472e3f.png"></p>
 
 ## Controle das Notas Fiscais
 

@@ -2,7 +2,7 @@
 
 Através do emissor de Nota Fiscal da WebmaniaBR®, você conta com a emissão e arquivamento das suas notas fiscais, cálculo automático de impostos, geração do Danfe para impressão e envio automático de e-mails para os clientes. Instale o módulo grátis do Magento e contrate um dos planos de Nota Fiscal Eletrônica da WebmaniaBR® a partir de R$29,90/mês: [Assine agora mesmo](https://webmaniabr.com/smartsales/nota-fiscal-eletronica/).
 
-- **Módulo compatível com as versões 1.7, 1.8, 1.9, 2.0 e 2.2**
+- **Módulo compatível com as versões 1.7, 1.8 e 1.9**
 - Emissor de NF-e da WebmaniaBR®: [Saiba mais](https://webmaniabr.com/smartsales/nota-fiscal-eletronica/)
 - Documentação da REST API: [Visualizar](https://webmaniabr.com/docs/rest-api-nfe/)
 

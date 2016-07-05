@@ -20,6 +20,17 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
         
             $orderno = $order->getIncrementId();
             $shipping_address = $order->getShippingAddress();
+            $peso = $item->getWeight();
+            
+            $kg = explode('.', $peso);
+            if (strlen($kg[0]) >= 3) { 
+                
+                $peso = $peso / 1000;
+                
+            }
+            
+            if (!$peso) $peso = '0.100';
+            $peso = number_format($peso, 3, '.', '');
 
             $data = array(
                 'ID' => (int) $orderno,
@@ -63,7 +74,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
                     'cest' => $cest,
                     'quantidade' => (int) $item->getData('qty_ordered'),
                     'unidade' => 'UN',
-                    'peso' => number_format($item->getWeight(), 3, '.', ''), // Peso em KG. Ex: 800 gramas = 0.800 KG
+                    'peso' => $peso, // Peso em KG. Ex: 800 gramas = 0.800 KG
                     'origem' => $origem,
                     'subtotal' => number_format($item->getPrice(), 2, '.', ''),
                     'total' => number_format($total, 2, '.', ''),

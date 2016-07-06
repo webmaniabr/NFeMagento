@@ -20,17 +20,6 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
         
             $orderno = $order->getIncrementId();
             $shipping_address = $order->getShippingAddress();
-            $peso = $item->getWeight();
-            
-            $kg = explode('.', $peso);
-            if (strlen($kg[0]) >= 3) { 
-                
-                $peso = $peso / 1000;
-                
-            }
-            
-            if (!$peso) $peso = '0.100';
-            $peso = number_format($peso, 3, '.', '');
 
             $data = array(
                 'ID' => (int) $orderno,
@@ -64,6 +53,18 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
             $items = $order->getAllVisibleItems();
             foreach($items as $item):
+            
+                $peso = $item->getWeight();
+
+                $kg = explode('.', $peso);
+                if (strlen($kg[0]) >= 3) { 
+
+                    $peso = $peso / 1000;
+
+                }
+
+                if (!$peso) $peso = '0.100';
+                $peso = number_format($peso, 3, '.', '');
 
                 $total = $item->getPrice() * $item->getData('qty_ordered');
 

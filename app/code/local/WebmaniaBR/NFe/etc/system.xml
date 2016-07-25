@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<config>
+    <tabs>
+        <nfe translate="label" module="nfe">
+            <label>Configurações NFe</label>
+            <sort_order>1</sort_order>
+        </nfe>
+    </tabs>
+    <sections>
+        <nfe translate="label" module="nfe">
+            <label>Custom Configuration Settings</label>
+            <tab>nfe</tab>
+            <frontend_type>text</frontend_type>
+            <sort_order>1</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <section_one translate="label">
+                    <label>Credenciais de Acesso</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>1</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                      <consumer_key>
+                          <label>Consumer key</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>1</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                          <show_in_store>1</show_in_store>
+                      </consumer_key>
+                      <consumer_secret>
+                          <label>Consumer secret</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>2</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                          <show_in_store>1</show_in_store>
+                      </consumer_secret>
+                      <access_token>
+                          <label>Access Token</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>3</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                          <show_in_store>1</show_in_store>
+                      </access_token>
+                      <access_token_secret>
+                          <label>Access Token Secret</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>4</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                          <show_in_store>1</show_in_store>
+                      </access_token_secret>
+                      <ambiente_sefaz>
+                          <label>Ambiente Sefaz</label>
+                          <frontend_type>radios</frontend_type>
+                          <source_model>nfe/options</source_model>
+                          <sort_order>5</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                          <show_in_store>1</show_in_store>
+                      </ambiente_sefaz>
+
+
+
+
+                    </fields>
+                </section_one>
+                <section_two translate="label">
+                    <label>Configuração Padrão</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>2</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                      <natureza_operacao>
+                          <label>Natureza da Operação</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>1</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                      </natureza_operacao>
+                      <classe_imposto>
+                          <label>Classe de Imposto</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>2</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                      </classe_imposto>
+                      <codigo_barras_ean>
+                          <label>Código de Barras EAN</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>3</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                      </codigo_barras_ean>
+                      <codigo_ncm>
+                          <label>Código NCM</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>4</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                      </codigo_ncm>
+                      <codigo_cest>
+                          <label>Código CEST</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>5</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                      </codigo_cest>
+                      <origem_produto>
+                          <label>Origem dos Produtos</label>
+                          <frontend_type>select</frontend_type>
+                          <source_model>nfe/OptionsOrigemProduto</source_model>
+                          <sort_order>6</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                          <show_in_store>1</show_in_store>
+                      </origem_produto>
+                    </fields>
+                </section_two>
+                <section_three translate="label">
+                    <label>Informações Complementares (Opcional)</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>3</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                      <fisco_inf>
+                          <label>Informações ao Fisco</label>
+                          <frontend_type>textarea</frontend_type>
+                          <sort_order>1</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                      </fisco_inf>
+                      <cons_inf>
+                          <label>Informações Complementares ao Consumidor</label>
+                          <frontend_type>textarea</frontend_type>
+                          <sort_order>2</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                      </cons_inf>
+                    </fields>
+                </section_three>
+            </groups>
+        </nfe>
+    </sections>
+</config>

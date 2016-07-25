@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<layout version="1.0">
+    <adminhtml_sales_order_view>
+        <reference name="order_info">
+            <block type="nfe/adminhtml_sales_order_view_info_block" name="nfe.order.info.custom.block" template="nfe/nfe.phtml"/>
+        </reference>
+    </adminhtml_sales_order_view>
+</layout>

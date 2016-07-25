@@ -1,0 +1,89 @@
+
+<?php $order = $this->getOrder();
+      $order_id = $order->getId();
+      $nfe_info = $this->get_order_nfe_info(); ?>
+
+<div class="entry-edit" id="nfe-info">
+  <div class="entry-edit-head">
+    <h4 class="icon-head head-products">Notas emitidas para este pedido</h4>
+  </div>
+  <div class="fieldset" style="border-color:#000">
+    <?php if(empty($nfe_info)): ?>
+      <p>Nenhuma nota emitida</p>
+    <?php else: ?>
+    <table class="table table-bordered" width="100%" cellspacing="0" style="border-collapse:collapse;">
+      <thead>
+        <tr>
+          <tr>
+            <th id="columnname" class="manage-column column-columnname" scope="col" width="15%">Data</th>
+            <th id="columnname" class="manage-column column-columnname" scope="col" width="5%">Série</th>
+            <th id="columnname" class="manage-column column-columnname" scope="col" width="5%">Nº</th>
+            <th id="columnname" class="manage-column column-columnname" scope="col" width="15%">RPS</th>
+            <th id="columnname" class="manage-column column-columnname" scope="col">Código Verificação</th>
+            <th id="columnname" class="manage-column column-columnname" scope="col" width="10%">Arquivo XML</th>
+            <th id="columnname" class="manage-column column-columnname" scope="col" width="10%">Danfe</th>
+            <th id="columnname" class="manage-column column-columnname" scope="col" width="10%">Status</th>
+          </tr>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach($nfe_info as $order_nfe): ?>
+          <tr style="border-bottom:1px solid #000;"><td class="column-columnname"><?php echo $order_nfe['data']; ?></td>
+          <td class="column-columnname"><?php echo $order_nfe['n_serie']; ?></td>
+          <td class="column-columnname"><?php echo $order_nfe['n_nfe']; ?></td>
+          <td class="column-columnname"><?php echo $order_nfe['n_recibo']; ?></td>
+          <td class="column-columnname"><?php echo $order_nfe['chave_acesso']; ?></td>
+          <td class="column-columnname"><a target="_blank" href="<?php echo $order_nfe['url_xml']; ?>">Download XML</a></td>
+          <td class="column-columnname"><a target="_blank" href="<?php echo $order_nfe['url_danfe']; ?>">Visualizar Nota</a></td>
+          <td class="column-columnname">
+            <span class="nfe-status <?php echo $order_nfe['status']; ?>"><?php echo $order_nfe['status']; ?></span>
+            <a href="<?php echo Mage::helper("adminhtml")->getUrl("nfe/standard/update/", array('chave_acesso' => $order_nfe['chave_acesso'], 'order_id' => $order_id)); ?>" style="display:block">Atualizar Status</a>
+            </td></tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  <?php endif; ?>
+  </div>
+</div>
+<div class="clear"></div>
+
+<style>
+.nfe-status {
+  text-transform: capitalize;
+  color: #FFF;
+  padding: 2px 5px;
+}
+
+.nfe-status.aprovado {
+  background-color: #46894b;
+}
+
+.nfe-status.reprovado,
+.nfe-status.cancelado {
+  background-color: #ce3737;
+}
+
+.nfe-status.processando,
+.nfe-status.contingencia{
+  background-color: #eccb28;
+  color: #000;
+  font-weight: 600;
+}
+
+.table-bordered td{
+  vertical-align: middle;
+  height: 60px;
+}
+
+.table-bordered tbody tr:last-child{
+  border-bottom:0!important;
+}
+</style>
+
+<script>
+
+  var order_messages= document.getElementById("order-messages");
+  var nfe_info = document.getElementById('nfe-info');
+  order_messages.parentNode.insertBefore(nfe_info, order_messages);
+
+</script>

@@ -1,4 +1,4 @@
-<?php
+<?
 
 /* Credenciais da Aplicação */
 $consumerKey = ''; // Defina o Consumer Key da sua aplicação

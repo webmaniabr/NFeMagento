@@ -12,11 +12,11 @@ Através do emissor de Nota Fiscal da WebmaniaBR®, você conta com a emissão e
 - Contrate um dos planos de Nota Fiscal Eletrônica da WebmaniaBR® a partir de R$29,90/mês: [Assine Agora](https://webmaniabr.com/smartsales/nota-fiscal-eletronica/)
 - Instale o módulo grátis do Magento da WebmaniaBR® e configure conforme instruções.
 
-## Instalação do Módulo
+## Instalação
 
 Após realizar o download da última versão ([Clique aqui](https://github.com/webmaniabr/NFeMagento/releases)), descompacte o arquivo zip e envie todos os arquivos na pasta raiz da sua loja virtual. A transferência pode ser realizada através do acesso FTP da sua hospedagem.
 
-## Configuração do Módulo
+## Configuração
 
 Consulte o nosso guia passo a passo para começar a emitir as notas fiscais com apenas um clique na sua Loja Virtual:
 

@@ -16,31 +16,11 @@ Através do emissor de Nota Fiscal da WebmaniaBR®, você conta com a emissão e
 
 Após realizar o download da última versão ([Clique aqui](https://github.com/webmaniabr/NFeMagento/releases)), descompacte o arquivo zip e envie todos os arquivos na pasta raiz da sua loja virtual. A transferência pode ser realizada através do acesso FTP da sua hospedagem.
 
-Configure o arquivo ```/app/code/local/WebmaniaBR/NFe/Model/config.php``` com as informações da sua aplicação. Segue abaixo exemplo:
+## Configuração do Módulo
 
-```php
-/* Credenciais da Aplicação */
-$consumerKey = 'SEUCONSUMERKEY';
-$consumerSecret = 'SEUCONSUMERSECRET';
-$accessToken = 'SEUACCESSTOKEN';
-$accessTokenSecret = 'SEUTOKENSECRET';
+Consulte o nosso guia passo a passo para começar a emitir as notas fiscais com um clique na sua Loja Virtual:
 
-/* Configurar Emissão */
-$executar_quando = 'processing'; // Defina o status de quando o pagamento é confirmado
-$natureza_operacao = 'Venda de produção do estabelecimento';
-$ambiente = 1; // 1 - Produção ou 2 - Homologação
-$ncm = '6109.10.00'; // NCM dos produtos (Obrigatório)
-$cest = '28.038.00'; // Opcional
-$classe_imposto = 'REF1637'; // Classe de Imposto no painel da WebmaniaBR® (Obrigatório)
-$origem = 0; // Origem dos produtos (verificar documentação da API)
-```
-## Emissão de Nota Fiscal Manual
-
-Caso deseje, também é possível realizar a emissão da Nota Fiscal Eletrônica de forma manual no painel de controle Magento. Após instalado o módulo, automaticamente será ativado a opção **Emitir NF-e** nas ações gerais dos pedidos.
-
-<p align="center">
-<img src="https://webmaniabr.com/wp-content/uploads/2015/12/img_5666427f8ea34.png">
-</p>
+- [Guia de emissão de Nota Fiscal para Loja Virtual](https://webmaniabr.com/blog/guia-de-emissao-de-nota-fiscal-para-loja-virtual/)
 
 ## Adaptar página Finalizar Compra
 

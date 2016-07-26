@@ -2,13 +2,13 @@
 <config>
     <tabs>
         <nfe translate="label" module="nfe">
-            <label>Configurações NFe</label>
+            <label>Nota Fiscal Eletrônica</label>
             <sort_order>1</sort_order>
         </nfe>
     </tabs>
     <sections>
         <nfe translate="label" module="nfe">
-            <label>Custom Configuration Settings</label>
+            <label>Configuração</label>
             <tab>nfe</tab>
             <frontend_type>text</frontend_type>
             <sort_order>1</sort_order>

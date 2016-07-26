@@ -13,7 +13,7 @@ Após realizar o download da última versão ([Clique aqui](https://github.com/w
 
 ## Configuração do Módulo
 
-Consulte o nosso guia passo a passo para começar a emitir as notas fiscais com um clique na sua Loja Virtual:
+Consulte o nosso guia passo a passo para começar a emitir as notas fiscais com apenas um clique na sua Loja Virtual:
 
 - [Guia de emissão de Nota Fiscal para Loja Virtual](https://webmaniabr.com/blog/guia-de-emissao-de-nota-fiscal-para-loja-virtual/)
 

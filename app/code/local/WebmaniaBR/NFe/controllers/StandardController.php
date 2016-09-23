@@ -73,17 +73,23 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
       // Emissão automática de Nota Fiscal
       $notafiscal = new WebmaniaBR_NFe_Model_Observer;
       $response = $notafiscal->emitirNfe( $order, null, null, true );
+    
       $orderno = (int) $order->getIncrementId();
-      if (isset($response->error)) {
+      if (isset($response->error)){
         Mage::getSingleton('core/session')->addError("Nota Fiscal #".$orderno.': '.$response->error);
-        if ($response->log){
-          foreach ($response->log as $erros){
-            foreach ($erros as $erro) {
-              Mage::getSingleton('core/session')->addError("- ".$erro);
-            }
+      }elseif($response->status == 'reprovado'){
+        if (isset($response->log)){
+          if ($response->log->xMotivo){
+            if(isset($response->log->aProt[0]->xMotivo)){
+							$error = $response->log->aProt[0]->xMotivo;
+						}else{
+							$error = $response->log->xMotivo;
+						}
+
+            Mage::getSingleton('core/session')->addError("- ".$error);
           }
         }
-      } else {
+      }else {
 
         $setup = new Mage_Sales_Model_Resource_Setup('core_setup');
 

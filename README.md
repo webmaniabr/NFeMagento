@@ -36,7 +36,7 @@ Para a emissão correta da Nota Fiscal Eletrônica é importante ter os seguinte
 - Estado
 - CEP (utilizado como padrão o campo Tax VAT)
 
-Na pasta ```/app/design/``` possui exemplos de como deve ser a página Finalizar Compra e a amostragem dos campos no painel de controle do Magento. Mais informações de configuração você encontra no site Comunidade Magento: http://www.comunidademagento.com.br/portal/adicionando-campos-de-endereco/
+Na pasta ```/app/design/``` possui exemplos de como deve ser a página Finalizar Compra e a amostragem dos campos no painel de controle do Magento. Mais informações de configuração você encontra no site Comunidade Magento: https://www.comunidademagento.com.br/adicionando-campos-de-endereco/
 
 **Exemplo de campos na página Finalizar Compra**
 <p><img src="https://webmaniabr.com/wp-content/uploads/2015/12/img_56662bb04a8a0.png"></p>

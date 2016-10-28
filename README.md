@@ -14,7 +14,7 @@ Através do emissor de Nota Fiscal da WebmaniaBR®, você conta com a emissão e
 
 ## Instalação
 
-Após realizar o download da última versão ([Clique aqui](https://github.com/webmaniabr/NFeMagento/releases)), descompacte o arquivo zip e envie todos os arquivos na pasta raiz da sua loja virtual. A transferência pode ser realizada através do acesso FTP da sua hospedagem.
+Após realizar o download da última versão ([Clique aqui](https://github.com/webmaniabr/NFeMagento/releases)), descompacte o arquivo zip e envie todos os arquivos na pasta raiz da sua loja virtual, exceto a pasta ```/app/design/``` que deve ser implementada conforme instruções na etapa **Adaptar página Finalizar Compra**. A transferência pode ser realizada através do acesso FTP da sua hospedagem.
 
 ## Configuração
 

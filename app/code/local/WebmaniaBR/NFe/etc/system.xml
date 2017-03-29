@@ -65,6 +65,14 @@
                           <show_in_website>1</show_in_website>
                           <show_in_store>1</show_in_store>
                       </ambiente_sefaz>
+                      <uniq_get_key>
+                          <label>Uniq ID</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>5</sort_order>
+                          <show_in_default>0</show_in_default>
+                          <show_in_website>0</show_in_website>
+                          <show_in_store>0</show_in_store>
+                      </uniq_get_key>
 
 
 
@@ -79,6 +87,16 @@
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
                     <fields>
+
+                      <envio_email>
+                          <label>Envio automático de email</label>
+                          <frontend_type>select</frontend_type>
+                          <source_model>nfe/OptionsEnvioEmail</source_model>
+                          <sort_order>1</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                      </envio_email>
+                      
                       <natureza_operacao>
                           <label>Natureza da Operação</label>
                           <frontend_type>text</frontend_type>

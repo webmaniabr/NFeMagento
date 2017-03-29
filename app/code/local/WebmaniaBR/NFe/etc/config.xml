@@ -2,7 +2,7 @@
 <config>
   <modules>
     <WebmaniaBR_NFe>
-      <version>1.1</version>
+      <version>1.2</version>
     </WebmaniaBR_NFe>
   </modules>
   <default>
@@ -53,6 +53,16 @@
         </setup>
       </nfe_setup>
     </resources>
+    <events>
+      <controller_action_predispatch>
+        <observers>
+          <nfe_listen_notification>
+            <class>nfe/observer</class>
+            <method>listenNotification</method>
+          </nfe_listen_notification>
+        </observers>
+      </controller_action_predispatch>
+    </events>
   </global>
   <admin>
     <routers>

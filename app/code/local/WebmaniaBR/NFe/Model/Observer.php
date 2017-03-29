@@ -28,6 +28,17 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
     $this->ean = Mage::getStoreConfig('nfe/section_two/codigo_barras_ean', Mage::app()->getStore());
     $this->origem = Mage::getStoreConfig('nfe/section_two/origem_produto', Mage::app()->getStore());
 
+    $this->uniq_id = Mage::getStoreConfig('nfe/section_one/uniq_get_key', Mage::app()->getStore());
+
+    $envio_email = Mage::getStoreConfig('nfe/section_two/envio_email', Mage::app()->getStore());
+
+    if(!$this->uniq_id){
+      $this->uniq_id = md5(uniqid(rand(), true));
+      Mage::getModel('core/config')->saveConfig('nfe/section_one/uniq_get_key', $this->uniq_id);
+    }
+
+    $notification_url = Mage::getBaseUrl().'?retorno_nfe='.$this->uniq_id.'&order_id='.$order->getIncrementId();
+
     if ($state == $executar_quando || $force) {
 
       $applied_rule_id = $order->applied_rule_ids; //Assign due to protected property (to check for empty)
@@ -46,6 +57,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
       $data = array(
         'ID' => (int) $orderno,
+        'url_notificacao' => $notification_url,
         'operacao' => 1,
         'natureza_operacao' => $this->natureza_operacao,
         'emissao' => 1,
@@ -62,7 +74,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
           'uf' => $shipping_address->getRegion(),
           'cep' => $shipping_address->getPostcode(),
           'telefone' => $shipping_address->getTelephone(),
-          'email' => $order->getCustomerEmail()
+          'email' => ($envio_email ? $order->getCustomerEmail() : '')
         ),
         'pedido' => array(
           'pagamento' => 0,
@@ -208,5 +220,44 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
     }
 
   }
+
+  public function listenNotification(){
+
+   if($_SERVER['REQUEST_METHOD'] === 'POST' && $_GET['retorno_nfe'] && $_GET['order_id']){
+
+
+      $order_id = (int) $_GET['order_id'];
+      $uniq_key = Mage::getStoreConfig('nfe/section_one/uniq_get_key', Mage::app()->getStore());
+
+      if($_GET['retorno_nfe'] == $uniq_key){
+        $order = Mage::getModel('sales/order')->loadByIncrementId($order_id);
+        $order_nfe_info = unserialize(base64_decode($order->getData('all_nfe')));
+
+        if(!$order_nfe_info) $order_nfe_info = array();
+
+        foreach($order_nfe_info as $key => $nfe){
+          $numero_nfe = $nfe['n_nfe'];
+
+          $current_status = $nfe['status'];
+          $received_status = $_POST['status'];
+
+          if($numero_nfe == $_POST['nfe'] && $current_status != $received_status){
+
+            $order_nfe_info[$key]['status'] = $received_status;
+            $nfe_info_str = base64_encode(serialize($order_nfe_info));
+            $order->setData('all_nfe', $nfe_info_str);
+            $order->save();
+            break;
+          }
+
+        }
+
+      }
+
+      die();
+
+    }
+
+}
 
 }

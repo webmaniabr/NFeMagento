@@ -9,16 +9,14 @@ Através do emissor de Nota Fiscal da WebmaniaBR®, você conta com a emissão e
 
 ## Requisitos
 
-- Contrate um dos planos de Nota Fiscal Eletrônica da WebmaniaBR® a partir de R$29,90/mês: [Assine Agora](https://webmaniabr.com/smartsales/nota-fiscal-eletronica/)
+- Contrate um dos planos de Nota Fiscal Eletrônica da WebmaniaBR® a partir de R$29,90/mês: <br>[Avaliação por 30 dias grátis!](https://webmaniabr.com/smartsales/nota-fiscal-eletronica/)
 - Instale o módulo grátis do Magento da WebmaniaBR® e configure conforme instruções.
 
 ## Instalação
 
 Após realizar o download da última versão ([Clique aqui](https://github.com/webmaniabr/NFeMagento/releases)), descompacte o arquivo zip e envie todos os arquivos na pasta raiz da sua loja virtual, exceto a pasta ```/app/design/``` que deve ser implementada conforme instruções na etapa **Adaptar página Finalizar Compra**. A transferência pode ser realizada através do acesso FTP da sua hospedagem.
 
-## Configuração
-
-Consulte o nosso guia passo a passo para começar a emitir as notas fiscais com apenas um clique na sua Loja Virtual:
+## Instruções
 
 - [Guia de emissão de Nota Fiscal para Loja Virtual](https://webmaniabr.com/blog/guia-de-emissao-de-nota-fiscal-para-loja-virtual/)
 
@@ -63,14 +61,6 @@ protected function _setState($state, $status = false, $comment = '',
 }
 ```
 
-## Controle das Notas Fiscais
-
-Você pode gerenciar todas as Notas Fiscais e realizar a impressão do Danfe no painel da WebmaniaBR®. Simples e fácil.
-
-<p align="center">
-<img src="https://webmaniabr.com/wp-content/themes/wmbr/img/nf07.jpg">
-</p>
-
 ## Suporte
 
-Qualquer dúvida entre em contato na nossa [Central de Atendimento](https://webmaniabr.com/atendimento/) ou no e-mail suporte@webmaniabr.com.
+Qualquer dúvida entre em contato na nossa [Central de Ajuda](https://ajuda.webmaniabr.com) ou acesse o [Painel de Controle](https://webmaniabr.com/painel/) para conversar em tempo real no Chat ou Abrir um chamado.

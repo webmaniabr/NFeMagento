@@ -32,6 +32,8 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
     $envio_email = Mage::getStoreConfig('nfe/section_two/envio_email', Mage::app()->getStore());
 
+    if(!$envio_email || $envio_email == '1') $envio_email = 'on';
+
     if(!$this->uniq_id){
       $this->uniq_id = md5(uniqid(rand(), true));
       Mage::getModel('core/config')->saveConfig('nfe/section_one/uniq_get_key', $this->uniq_id);
@@ -74,7 +76,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
           'uf' => $shipping_address->getRegion(),
           'cep' => $shipping_address->getPostcode(),
           'telefone' => $shipping_address->getTelephone(),
-          'email' => ($envio_email ? $order->getCustomerEmail() : '')
+          'email' => ($envio_email == 'on' ? $order->getCustomerEmail() : '')
         ),
         'pedido' => array(
           'pagamento' => 0,
@@ -120,6 +122,18 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
         }
 
         $product_ncm = $product->getData('codigo_ncm');
+
+        if(empty($product_ncm)){
+
+          $categories = $product->getCategoryIds();
+          foreach($categories as $cat_id){
+            $cat = Mage::getModel('catalog/category')->load($cat_id);
+            $product_ncm = $cat->getData('category_ncm');
+            if($product_ncm) break;
+          }
+
+        }
+
         if(empty($product_ncm)) $product_ncm = $this->ncm;
 
         $product_ean = $product->getData('codigo_ean');
@@ -150,6 +164,58 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
         );
 
       endforeach;
+
+      $include_shipping_info = Mage::getStoreConfig('nfe/section_four/transp_include', Mage::app()->getStore());
+
+      if($include_shipping_info){
+
+        $method = Mage::getStoreConfig('nfe/section_four/transp_method', Mage::app()->getStore());
+        $order_carrier = $order->getShippingMethod();
+
+        if($method.'_'.$method == $order_carrier){
+          $data['transporte'] = array(
+            'cnpj'         => Mage::getStoreConfig('nfe/section_four/transp_cnpj'),
+            'razao_social' => Mage::getStoreConfig('nfe/section_four/transp_rs'),
+            'ie'           => Mage::getStoreConfig('nfe/section_four/transp_ie'),
+            'endereco'     => Mage::getStoreConfig('nfe/section_four/transp_address'),
+            'uf'           => Mage::getStoreConfig('nfe/section_four/transp_uf'),
+            'cidade'       => Mage::getStoreConfig('nfe/section_four/transp_city'),
+            'cep'          => Mage::getStoreConfig('nfe/section_four/transp_cep'),
+          );
+
+          $transporte_info = $order->getData('nfe_transporte_info');
+
+          if(is_null($transporte_info)){
+            $transporte_info = array(
+              'volume' => '',
+              'especie' => '',
+              'peso_bruto' => '',
+              'peso_liquido' => '',
+              'modalidade_frete' => '',
+            );
+          }else{
+            $transporte_info = json_decode($transporte_info, true);
+          }
+
+          foreach($transporte_info as $api_key => $value){
+
+            if($api_key == 'modalidade_frete') continue;
+            if($value){
+              $data['transporte'][$api_key] = $value;
+            }
+
+          }
+
+          if($transporte_info['modalidade_frete']){
+            $data['pedido']['modalidade_frete'] = $transporte_info['modalidade_frete'];
+          }
+
+        }
+
+
+
+
+      }
 
       $response = self::connect_webmaniabr( 'POST', 'https://webmaniabr.com/api/1/nfe/emissao/', $data );
       /* print_r($response); exit; // Debug */
@@ -221,9 +287,25 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
   }
 
+  public function getOrderTransporteViewInfo( Varien_Event_Observer $observer){
+
+    $block = $observer->getBlock();
+    $observer->getOrder();
+
+    if (($block->getNameInLayout() == 'order_info') && ($child = $block->getChild('nfe.order.transporte.info'))) {
+      $transport = $observer->getTransport();
+      if ($transport) {
+        $html = $transport->getHtml();
+        $html .= $child->toHtml();
+        $transport->setHtml($html);
+      }
+    }
+
+  }
+
   public function listenNotification(){
 
-   if($_SERVER['REQUEST_METHOD'] === 'POST' && $_GET['retorno_nfe'] && $_GET['order_id']){
+   if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['retorno_nfe']) && $_GET['order_id']){
 
 
       $order_id = (int) $_GET['order_id'];

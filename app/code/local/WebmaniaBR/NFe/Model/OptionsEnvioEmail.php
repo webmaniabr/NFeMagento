@@ -9,8 +9,8 @@ class WebmaniaBR_NFe_Model_OptionsEnvioEmail
   public function toOptionArray()
   {
     return array(
-      array('value'=> 0, 'label'=> 'Desativado'),
-      array('value'=> 1, 'label'=> 'Ativado'),
+      array('value'=> 'off', 'label'=> 'Desativado'),
+      array('value'=> 'on', 'label'=> 'Ativado'),
     );
   }
 }

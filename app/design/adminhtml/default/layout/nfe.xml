@@ -4,5 +4,8 @@
         <reference name="order_info">
             <block type="nfe/adminhtml_sales_order_view_info_block" name="nfe.order.info.custom.block" template="nfe/nfe.phtml"/>
         </reference>
+        <reference name="order_info">
+            <block type="nfe/adminhtml_sales_order_view_info_block" name="nfe.order.transporte.info" template="nfe/nfe-transporte.phtml"/>
+        </reference>
     </adminhtml_sales_order_view>
 </layout>

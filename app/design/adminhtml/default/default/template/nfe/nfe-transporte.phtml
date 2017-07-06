@@ -1,0 +1,87 @@
+<style>
+  .save-transporte-info{
+    border-width: 1px;
+    border-style: solid;
+    border-color: #a04300;
+    padding: 1px 7px 2px 7px;
+    background: #f6750f;
+    color: #fff;
+    font: bold 12px arial, helvetica, sans-serif;
+    cursor: pointer;
+    text-align: center !important;
+    white-space: nowrap;
+  }
+</style>
+
+<?php $order = $this->getOrder();
+      $order_id = $order->getId();
+      $transporte_info = $order->getData('nfe_transporte_info');
+
+      if(is_null($transporte_info)){
+        $transporte_info = array(
+          'volume' => '',
+          'especie' => '',
+          'peso_bruto' => '',
+          'peso_liquido' => '',
+          'modalidade_frete' => '',
+        );
+      }else{
+        $transporte_info = json_decode($transporte_info, true);
+      }
+      ?>
+
+<div class="entry-edit" id="nfe-transporte-info">
+  <div class="entry-edit-head">
+    <h4 class="icon-head head-products">Informações do transporte (NF-e)</h4>
+  </div>
+  <form method="POST" action="<?php echo Mage::helper("adminhtml")->getUrl("nfe/standard/updatetransporte/", array('order_id' => $order_id)); ?>">
+    <div class="fieldset" style="border-color:#000">
+      <p>Informações complementares na emissão de Nota Fiscal para pedidos enviados via Transportadora</p>
+      <span class="field-row">
+        <label class="normal">Modalidade do frete</label>
+        <select name="nfe_transporte_modalidade_frete">
+        <?php
+        $options = array(
+          0 => 'Por conta do emitente',
+          1 => 'Por conta do destinatário',
+          2 => 'Por conta de terceiros',
+          9 => 'Sem frete'
+        );
+
+          foreach($options as $value => $label){
+            ($value == $transporte_info['modalidade_frete'] ? $selected = 'selected' : $selected = '');
+            echo '<option value="'.$value.'" '.$selected.'>'.$label.'</option>';
+          }
+
+        ?>
+        </select>
+      </span>
+      <span class="field-row">
+        <label class="normal">Volume</label>
+        <input type="text" class="input-text" name="nfe_transporte_volume" value="<?php echo $transporte_info['volume']; ?>"/>
+      </span>
+      <span class="field-row">
+        <label class="normal">Espécie</label>
+        <input type="text" class="input-text" name="nfe_transporte_especie" value="<?php echo $transporte_info['especie']; ?>"/>
+      </span>
+      <span class="field-row">
+        <label class="normal">Peso Bruto</label>
+        <input type="text" class="input-text" name="nfe_transporte_peso_bruto" value="<?php echo $transporte_info['peso_bruto']; ?>" placeholder="Ex: 50.210 = 50,210KG" />
+      </span>
+      <span class="field-row">
+        <label class="normal">Peso Líquido</label>
+        <input type="text" class="input-text" name="nfe_transporte_peso_liquido" value="<?php echo $transporte_info['peso_liquido']; ?>" placeholder="Ex: 50.210 = 50,210KG" />
+      </span>
+      <input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+      <input type="submit" value="Salvar" class="save-transporte-info"/>
+    </div>
+  </form>
+</div>
+
+<script>
+
+  var order_messages= document.getElementById("order-messages");
+  var nfe_transporte_info = document.getElementById('nfe-transporte-info');
+  order_messages.parentNode.insertBefore(nfe_transporte_info, order_messages);
+
+</script>

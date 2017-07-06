@@ -25,6 +25,53 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
 
   }
 
+  public function updateTransporteAction(){
+
+    $order_id = $this->getRequest()->getParam('order_id');
+
+    $order = Mage::getModel('sales/order')->load($order_id);
+
+    $data = $order->getData('nfe_transporte_info');
+
+
+    if(is_null($data)){
+
+      $attribute  = array(
+        'type' => 'text',
+        'input' => 'text',
+        'label' => 'Informações de Transporte',
+        'global' => 0,
+        'visible' => 0,
+        'required' => 0,
+        'user_defined' => 1,
+        'visible_on_front' => 0,
+      );
+
+      $setup = new Mage_Sales_Model_Resource_Setup('core_setup');
+      $setup->addAttribute('order', 'nfe_transporte_info', $attribute);
+      $setup->endSetup();
+
+    }
+
+    $transporte_info = array(
+      'volume'           => $this->getRequest()->getPost('nfe_transporte_volume'),
+      'especie'          => $this->getRequest()->getPost('nfe_transporte_especie'),
+      'peso_bruto'       => $this->getRequest()->getPost('nfe_transporte_peso_bruto'),
+      'peso_liquido'     => $this->getRequest()->getPost('nfe_transporte_peso_liquido'),
+      'modalidade_frete' => $this->getRequest()->getPost('nfe_transporte_modalidade_frete'),
+    );
+
+    $json_info = json_encode($transporte_info);
+    $order->setData('nfe_transporte_info', $json_info);
+    $order->save();
+
+    Mage::getSingleton('core/session')->addSuccess("Informações salvas com sucesso.");
+
+    $referer_url = $this->get_referer_url();
+    $this->_redirectUrl($referer_url);
+
+  }
+
   public function updateAction() {
 
     $chave_acesso = $this->getRequest()->getParam('chave_acesso');
@@ -73,7 +120,7 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
       // Emissão automática de Nota Fiscal
       $notafiscal = new WebmaniaBR_NFe_Model_Observer;
       $response = $notafiscal->emitirNfe( $order, null, null, true );
-    
+
       $orderno = (int) $order->getIncrementId();
       if (isset($response->error)){
         Mage::getSingleton('core/session')->addError("Nota Fiscal #".$orderno.': '.$response->error);

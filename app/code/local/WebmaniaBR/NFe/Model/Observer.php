@@ -103,9 +103,20 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
       }
 
       $items = $order->getAllVisibleItems();
+      $bundle_products = array();
+
       foreach($items as $item):
         $product = Mage::getModel('catalog/product')->load($item->getProductId());
         $total = $item->getPrice() * $item->getData('qty_ordered');
+
+        $product_type = $product->getTypeId();
+
+
+        if($product_type == 'bundle'){
+
+          $bundle_products[] = $item;
+          continue;
+        }
 
         $ignorar = $product->getData('ignorar_nfe');
         if($ignorar == 1){
@@ -165,6 +176,23 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
       endforeach;
 
+      if(!empty($bundle_products)){
+
+        $bundle_info = $this->get_bundled_products($bundle_products);
+        $bundle_items = array_values($bundle_info['items']);
+        $bundle_discount = $bundle_info['discount'];
+
+        if(!isset($data['produtos'])) $data['produtos'] = array();
+        $data['produtos'] = array_merge($data['produtos'], $bundle_items);
+
+
+        if($bundle_discount > 0){
+          $prev_discount = $data['pedido']['desconto'];
+          $updated_discount = $prev_discount + $bundle_discount;
+          $data['pedido']['desconto'] = number_format($updated_discount, 2, '.', '');
+        }
+      }
+
       $include_shipping_info = Mage::getStoreConfig('nfe/section_four/transp_include', Mage::app()->getStore());
 
       if($include_shipping_info){
@@ -222,6 +250,111 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
       return $response;
 
     }
+  }
+
+  public function get_bundled_products( $bundles = array() ) {
+
+    $bundled_product_ids = array();
+    $bundle_items = array();
+    $total_discount = 0;
+
+    foreach($bundles as $item){
+
+      $product = new Mage_Catalog_Model_Product();
+      $product->load($item->getProductId());
+
+
+      $bundled_products = $product->getTypeInstance(true)->getSelectionsCollection(
+      $product->getTypeInstance(true)->getOptionsIds($product), $product
+      );
+
+      $item_total = $item->getPrice() * $item->getData('qty_ordered');
+      $b_products_total = 0;
+
+
+      foreach($bundled_products as $option){
+
+        $product_id = $option->product_id;
+
+        $b_product = Mage::getModel('catalog/product')->load($product_id);
+
+        $product_qty = $option->selection_qty;
+        $total_qty = $item->getData('qty_ordered') * $product_qty;
+        $b_product_total = $b_product->getPrice() * $total_qty;
+
+        $b_products_total += $b_product_total;
+
+
+        if(!in_array($product_id, $bundled_product_ids)){
+
+          $bundled_product_ids[] = $product_id;
+          $b_product = Mage::getModel('catalog/product')->load($product_id);
+
+          $b_product_ncm = $b_product->getData('codigo_ncm');
+
+          if(empty($b_product_ncm)){
+
+            $categories = $b_product->getCategoryIds();
+            foreach($categories as $cat_id){
+              $cat = Mage::getModel('catalog/category')->load($cat_id);
+              $b_product_ncm = $cat->getData('category_ncm');
+              if($b_product_ncm) break;
+            }
+
+          }
+
+          if(empty($b_product_ncm)) $b_product_ncm = $this->ncm;
+
+          $b_product_ean = $b_product->getData('codigo_ean');
+          if(empty($b_product_ean)) $b_product_ean = $this->ean;
+
+          $b_product_cest = $b_product->getData('codigo_cest');
+          if(empty($b_product_cest)) $b_product_cest = $this->cest;
+
+          $b_product_classe_imposto = $b_product->getData('classe_imposto');
+          if(empty($b_product_classe_imposto)) $b_product_classe_imposto = $this->classe_imposto;
+
+          $b_product_origem = substr($b_product->getAttributeText('origem_produto'), 0, 1);
+          if(!is_string($b_product_origem)) $b_product_origem = $this->origem;
+
+          $bundle_items[$product_id] = array(
+            'nome' => $b_product->getName(),
+            'sku' => $b_product->getSku(),
+            'ean' => $b_product_ean,
+            'ncm' => $b_product_ncm,
+            'cest' => $b_product_cest,
+            'quantidade' => (int) $total_qty,
+            'unidade' => 'UN',
+            'peso' => number_format($b_product->getWeight(), 3, '.', ''), // Peso em KG. Ex: 800 gramas = 0.800 KG
+            'origem' => (int)$b_product_origem,
+            'subtotal' => number_format($b_product->getPrice(), 2, '.', ''),
+            'total' => number_format($b_product_total, 2, '.', ''),
+            'classe_imposto' => $b_product_classe_imposto
+          );
+
+        }else{
+          $prev_qty = $bundle_items[$product_id]['quantidade'];
+          $updated_qty = $prev_qty + $total_qty;
+          $bundle_items[$product_id]['quantidade'] = (int) $updated_qty;
+
+          $prev_total = $bundle_items[$product_id]['total'];
+          $updated_total = $prev_total + $b_product_total;
+          $bundle_items[$product_id]['total'] = number_format($updated_total, 2, '.', '');
+        }
+
+
+      }
+
+      $price_diff = $b_products_total - $item_total;
+
+      if($price_diff > 0){
+        $total_discount += $price_diff;
+      }
+
+    }
+
+    return array('items' => $bundle_items, 'discount' => $total_discount);
+
   }
 
   function updateNotaFiscal($chave_acesso){

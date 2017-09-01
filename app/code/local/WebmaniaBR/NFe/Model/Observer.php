@@ -8,6 +8,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
   {
 
     include 'config.php';
+    $data = array();
 
     /* -----------------------------------------------------------
     ATENÇÃO: SOMENTE EDITE O CÓDIGO ABAIXO SE TIVER CONHECIMENTO
@@ -18,19 +19,17 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
     $this->consumerSecret = Mage::getStoreConfig('nfe/section_one/consumer_secret', Mage::app()->getStore());
     $this->accessToken = Mage::getStoreConfig('nfe/section_one/access_token', Mage::app()->getStore());
     $this->accessTokenSecret = Mage::getStoreConfig('nfe/section_one/access_token_secret', Mage::app()->getStore());
-
     $this->ambiente_sefaz = Mage::getStoreConfig('nfe/section_one/ambiente_sefaz', Mage::app()->getStore());
-
     $this->natureza_operacao = Mage::getStoreConfig('nfe/section_two/natureza_operacao', Mage::app()->getStore());
     $this->ncm = Mage::getStoreConfig('nfe/section_two/codigo_ncm', Mage::app()->getStore());
     $this->classe_imposto = Mage::getStoreConfig('nfe/section_two/classe_imposto', Mage::app()->getStore());
     $this->cest = Mage::getStoreConfig('nfe/section_two/codigo_cest', Mage::app()->getStore());
     $this->ean = Mage::getStoreConfig('nfe/section_two/codigo_barras_ean', Mage::app()->getStore());
     $this->origem = Mage::getStoreConfig('nfe/section_two/origem_produto', Mage::app()->getStore());
-
     $this->uniq_id = Mage::getStoreConfig('nfe/section_one/uniq_get_key', Mage::app()->getStore());
-
     $envio_email = Mage::getStoreConfig('nfe/section_two/envio_email', Mage::app()->getStore());
+    $customer_id = $order->getCustomerId();
+    $customerData = Mage::getModel('customer/customer')->load($customer_id);
 
     if(!$envio_email || $envio_email == '1') $envio_email = 'on';
 
@@ -66,8 +65,6 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
         'finalidade' => 1,
         'ambiente' => (int)$this->ambiente_sefaz,
         'cliente' => array(
-          'cpf' => $order->getData('customer_taxvat'),
-          'nome_completo' => $shipping_address->getFirstname().' '.$shipping_address->getLastname(),
           'endereco' => $shipping_address->getStreet(1),
           'complemento' => $shipping_address->getStreet(3),
           'numero' => (int) $shipping_address->getStreet(2),
@@ -88,7 +85,24 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
         ),
       );
 
-      //Informações COmplementares ao Fisco
+      // Set user
+      $cpf_cnpj = str_replace( array('/', '.', '-'), '', $order->getData('customer_taxvat'));
+
+      if (strlen($cpf_cnpj) == 14) {
+
+        $data['cliente']['cnpj'] = $order->getData('customer_taxvat');
+        $data['cliente']['razao_social'] = $shipping_address->getFirstname().' '.$shipping_address->getLastname();
+        if ($customerData->getData('inscest')) $data['cliente']['ie'] = $customerData->getData('inscest');
+
+
+      } else {
+
+        $data['cliente']['cpf'] = $order->getData('customer_taxvat');
+        $data['cliente']['nome_completo'] = $shipping_address->getFirstname().' '.$shipping_address->getLastname();
+
+      }
+
+      //Informações Complementares ao Fisco
       $fiscoinf = Mage::getStoreConfig('nfe/section_three/fisco_inf', Mage::app()->getStore());
 
       if(!empty($fiscoinf) && strlen($fiscoinf) <= 2000){

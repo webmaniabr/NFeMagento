@@ -24,7 +24,7 @@ Após realizar o download da última versão ([Clique aqui](https://github.com/w
 
 Para a emissão correta da Nota Fiscal Eletrônica é importante ter os seguintes campos obrigatórios na página Finalizar Compra:
 
-- CPF
+- CPF (utilizado como padrão o campo Tax VAT)
 - Nome completo
 - Endereço
 - Número
@@ -32,7 +32,7 @@ Para a emissão correta da Nota Fiscal Eletrônica é importante ter os seguinte
 - Bairro
 - Cidade
 - Estado
-- CEP (utilizado como padrão o campo Tax VAT)
+- CEP
 
 Na pasta ```/app/design/``` possui exemplos de como deve ser a página Finalizar Compra e a amostragem dos campos no painel de controle do Magento. Mais informações de configuração você encontra no site Comunidade Magento: http://www.comunidademagento.com.br/portal/adicionando-campos-de-endereco/
 

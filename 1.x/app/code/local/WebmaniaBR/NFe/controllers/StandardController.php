@@ -156,9 +156,10 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
 
         $existing_nfe = unserialize(base64_decode($order->getData('all_nfe')));
         if(!$existing_nfe) $existing_nfe = array();
+        $status = (string) $response->status;
 
         $nfe_info = array(
-          'status'       => (string) $response->status,
+          'status'       => $status,
           'chave_acesso' => $response->chave,
           'n_recibo'     => (int) $response->recibo,
           'n_nfe'        => (int) $response->nfe,
@@ -183,7 +184,7 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
         $nfe_info_str = base64_encode(serialize($existing_nfe));
         $order->setData('all_nfe', $nfe_info_str);
         $order->save();
-        Mage::getSingleton('core/session')->addSuccess("Nota Fiscal #".$orderno.': Emitida com sucesso.');
+        Mage::getSingleton('core/session')->addSuccess("Nota Fiscal #".$orderno.': Emitida com sucesso. (Chave de acesso: '.$response->chave.' | Status: '.$status.')');
       }
 
     }

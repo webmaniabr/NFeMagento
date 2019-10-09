@@ -58,6 +58,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
       $data = array(
         'ID' => (int) $orderno,
+        'origem' => 'magento_1.9',
         'url_notificacao' => $notification_url,
         'operacao' => 1,
         'natureza_operacao' => $this->natureza_operacao,

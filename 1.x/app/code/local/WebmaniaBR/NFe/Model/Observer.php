@@ -473,7 +473,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
       }
 
       // Return
-      if ($curl_error){
+      if ( isset($curl_error->error) ){
           return $curl_error;
       } else {
           return json_decode($response);

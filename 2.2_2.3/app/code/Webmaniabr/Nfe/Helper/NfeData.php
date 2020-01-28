@@ -66,10 +66,8 @@ class NfeData
 
         $ambiente_sefaz = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_access_token_configs/ambiente_sefaz', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
-        // remover
-        return 2;
-
         return $ambiente_sefaz;
+
     }
 
     /* Return option emissao_automatica saved in Stores -> Configuration -> WebmaniaBR NF-e

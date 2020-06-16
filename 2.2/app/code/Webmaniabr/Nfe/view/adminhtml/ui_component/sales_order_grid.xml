@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <listingToolbar name="listing_top">
+        <massaction name="listing_massaction">
+            <action name="emitir_nfe">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">mass_emitir_nfe</item>
+                        <item name="label" xsi:type="string" translate="true">Emitir NF-e</item>
+                        <item name="url" xsi:type="url" path="webmaniabrnfe/order/emitirnfe"/>
+                    </item>
+                </argument>
+            </action>
+        </massaction>
+    </listingToolbar>
+    
+    <columns name="sales_order_columns">
+        <column name="nfe_status" class="Webmaniabr\Nfe\Ui\Component\Listing\Column\StatusNfe">
+            <settings>
+                <label translate="true">Status da NF-e</label>
+                <bodyTmpl>ui/grid/cells/html</bodyTmpl>
+                <sortable>false</sortable>
+            </settings>
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="visible" xsi:type="boolean">true</item>
+                    <item name="label" xsi:type="string" translate="true">Status da NF-e</item>
+                </item>
+            </argument>
+        </column>
+    </columns>
+</listing>

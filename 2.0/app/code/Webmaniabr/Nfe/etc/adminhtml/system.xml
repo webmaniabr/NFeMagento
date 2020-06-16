@@ -1,0 +1,404 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="webmaniabr" translate="label" sortOrder="10">
+            <label>WebmaniaBR NF-e</label>
+        </tab>
+        
+        <section id="webmaniabr_nfe_configs" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Configurações Gerais</label>
+            <tab>webmaniabr</tab>
+            <resource>Webmaniabr_Nfe::webmaniabr_nfe_configs</resource>
+            
+            <group id="group_access_token_configs" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Credenciais de Acesso</label>
+                
+                <field id="enable" translate="label" type="radios" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Ativar Módulo</label>
+                     <comment></comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Offon</source_model>
+               </field>
+               
+                <field id="nfe_duplicada" translate="label" type="radios" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Permitir Emissão Dupla de NF-e</label>
+                     <comment>Permitir que haja emissão de uma NF-e após obter status "Emitida"</comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Offon</source_model>
+               </field>
+                
+                <field id="consumer_key" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Consumer Key</label>
+                    <comment>Chave de acesso fornecida na aquisição da assinatura.</comment>
+                </field>
+                
+                <field id="consumer_secret" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Consumer Secret</label>
+                    <comment>Chave de acesso fornecida na aquisição da assinatura.</comment>
+                </field>
+                
+                <field id="access_token" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Access Token</label>
+                    <comment>Token de acesso fornecido na aquisição da assinatura.</comment>
+                </field>
+                
+                <field id="access_token_secret" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Access Token Secret</label>
+                    <comment>Token de acesso fornecido na aquisição da assinatura.</comment>
+                </field>
+                
+                <field id="certificadoa1" translate="label" type="text" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="0">
+                </field>
+                
+                <field id="ambiente_sefaz" translate="label" type="radios" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                     <label>Ambiente Sefaz</label>
+                     <comment></comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Ambientesefaz</source_model>
+               </field>
+                      
+            </group>
+
+            <group id="group_configuracao_padrao" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Configuração Padrão</label>
+                
+               <field id="emissao_assincrona" translate="label" sortOrder="1" type="radios" showInDefault="1" showInWebsite="0" showInStore="0">
+                     <label>Emissão Assíncrona</label>
+                     <comment>A emissão assíncrona aumenta a velocidade das emissões de Nota Fiscal , o status da NF-e é atualizado automaticamente assim que obtido o retorno do Sefaz.</comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Offon</source_model>
+               </field>
+                
+               <field id="emissao_automatica" translate="label" sortOrder="1" type="radios" showInDefault="1" showInWebsite="0" showInStore="0">
+                     <label>Emissão Automática</label>
+                     <comment></comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Offon</source_model>
+               </field>
+                
+               <field id="envio_email" translate="label" sortOrder="2" type="radios" showInDefault="1" showInWebsite="0" showInStore="0">
+                     <label>Envio automático de e-mail</label>
+                     <comment>Atenção: O email será enviado mesmo para notas emitidas em ambiente de homologação!</comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Offon</source_model>
+               </field>
+                
+                <field id="natureza_operacao" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Natureza da Operação</label>
+                    <comment></comment>
+                </field>
+                
+               <field id="modelo" translate="label" sortOrder="4" type="radios" showInDefault="1" showInWebsite="0" showInStore="0">
+                     <label>Modelo</label>
+                     <comment></comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Modelo</source_model>
+               </field>
+                
+                <field id="classe_imposto" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Classe de imposto</label>
+                    <comment></comment>
+                </field>
+                
+                <field id="gtin" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>GTIN</label>
+                    <comment>Antigo código EAN</comment>
+                </field>
+                
+                <field id="gtin_tributavel" translate="label" type="text" sortOrder="7" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>GTIN tributável</label>
+                    <comment></comment>
+                </field>
+                
+                <field id="ncm" translate="label" type="text" sortOrder="8" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Código NCM</label>
+                    <comment></comment>
+                </field>
+                
+                <field id="cest" translate="label" type="text" sortOrder="9" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Código CEST</label>
+                    <comment></comment>
+                </field>
+                
+                <field id="unidade_nfe" translate="label" type="radios" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Unidade</label>
+                     <comment>Unidade padrão caso não esteja configurado em Cadastro do Produto -> Configurações Básicas -> Informações Fiscais (NF-e)</comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Unidade</source_model>
+               </field>
+
+               <field id="indicador_escala_relevante" translate="label" sortOrder="10" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                     <label>Indicador de Escala Relevante</label>
+                     <comment></comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Indicadorescalarelevante</source_model>
+               </field>
+                
+               <field id="origem_produto" translate="label" sortOrder="11" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                     <label>Origem do Produto</label>
+                     <comment></comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Origemprodutos</source_model>
+               </field>
+
+            </group>
+
+
+            <group id="group_configuracoes_complementares" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Informações Complementares (Opcional)</label>
+                
+                <field id="informacoes_fisco" translate="label" type="textarea" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Informações ao Fisco</label>
+                    <comment></comment>
+                </field>
+                
+                <field id="informacoes_complementares_consumidor" translate="label" type="textarea" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Informações Complementares ao Consumidor</label>
+                    <comment></comment>
+                </field>
+
+            </group>
+        </section>
+        
+        <section id="webmaniabr_nfe_pagamentos" translate="label" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Métodos de Pagamento</label>
+            <tab>webmaniabr</tab>
+            <resource>Webmaniabr_Nfe::webmaniabr_nfe_pagamentos</resource>
+            
+            <group id="todos_metodos_pagamentos" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Métodos de Pagamento</label>
+                
+                <field id="metodos_pagamento" translate="label" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Mapeamento dos Campos</label>
+                    <frontend_model>Webmaniabr\Nfe\Block\Adminhtml\Form\Field\Pagamentos</frontend_model>
+                    <backend_model>Webmaniabr\Nfe\Model\Adminhtml\System\Config\Backend\Pagamentos</backend_model>
+                </field>
+
+            </group>
+
+        </section>
+        
+        <section id="webmaniabr_nfe_transportadoras" translate="label" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Transportadoras</label>
+            <tab>webmaniabr</tab>
+            <resource>Webmaniabr_Nfe::webmaniabr_nfe_transportadoras</resource>
+            
+            <group id="todas_transportadora" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Transportadoras</label>
+                
+                <field id="transportadoras" translate="label" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>Webmaniabr\Nfe\Block\Adminhtml\Form\Field\Transportadoras</frontend_model>
+                    <backend_model>Webmaniabr\Nfe\Model\Adminhtml\System\Config\Backend\Transportadoras</backend_model>
+                    <comment>&#60;br&#62;&#60;span style='font-size:18px;font-weight:bold' &#62;Atenção:&#60;/span&#62; &#60;br&#62;&#60;br&#62; &#60;span style='font-size:14px;' &#62; Não é necessário o preenchimento para transportes realizados pelos Correios. Para transportadoras também é necessário configurar os dados na página do Pedido, localizado na aba Transportadoras NF-e.&#60;/span&#62;</comment>
+                </field>
+
+            </group>
+
+        </section>
+        
+        <section id="webmaniabr_nfe_address" translate="label" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Linhas de Endereço</label>
+            <tab>webmaniabr</tab>
+            <resource>Webmaniabr_Nfe::webmaniabr_nfe_address</resource>
+            
+            <group id="webmaniabr_nfe_address_lines" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="900" translate="label">
+                <label>Linhas de Endereço</label>
+                <field id="enabled" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
+                    <label>Ativar Personalização</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                
+                <group id="webmaniabr_nfe_address_line1" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="900" translate="label">
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    
+                    <label>Endereço</label>
+                    <field id="line_label" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+                        <label>Texto</label>
+                    </field>
+                    <field id="line_required" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="5" translate="label" type="select">
+                        <label>Obrigatório</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="line_validation_classes" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="text">
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                    </field>
+                    <field id="line_min_length" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="text">
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                    </field>
+                    <field id="line_max_length" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label" type="text">
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                    </field>
+                </group>
+                
+                <group id="webmaniabr_nfe_address_line2" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="900" translate="label">
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    
+                    <label>Número</label>
+                    <field id="line_enabled" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="5" translate="label" type="select">
+                        <label>Ativar Campo</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="line_required" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
+                        <label>Obrigatório</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="line_label" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="15" translate="label" type="text">
+                        <label>Texto</label>
+                    </field>
+                    <field id="line_validation_classes" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Validação</label>
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                    </field>
+                    <field id="line_min_length" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="text">
+                        <label>Tamanho mínimo</label>
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                        <comment></comment>
+                    </field>
+                    <field id="line_max_length" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label" type="text">
+                        <label>Tamanho máximo</label>
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                        <comment></comment>
+                    </field>
+                </group>
+                
+                <group id="webmaniabr_nfe_address_line3" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="900" translate="label">
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    
+                    <label>Complemento</label>
+                    <field id="line_enabled" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="5" translate="label" type="select">
+                        <label>Ativar Campo</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="line_required" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
+                        <label>Obrigatório</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="line_label" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="15" translate="label" type="text">
+                        <label>Texto</label>
+                    </field>
+                    <field id="line_validation_classes" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Validação</label>
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                    </field>
+                    <field id="line_min_length" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="text">
+                        <label>Tamanho mínimo</label>
+                        <comment></comment>
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                    </field>
+                    <field id="line_max_length" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label" type="text">
+                        <label>Tamanho máximo</label>
+                        <comment></comment>
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                    </field>
+                </group>
+                
+                <group id="webmaniabr_nfe_address_line4" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="900" translate="label">
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    
+                    <label>Bairro</label>
+                    <field id="line_enabled" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="5" translate="label" type="select">
+                        <label>Ativar Campo</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="line_required" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
+                        <label>Obrigatório</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="line_label" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="15" translate="label" type="text">
+                        <label>Texto</label>
+                    </field>
+                    <field id="line_validation_classes" showInDefault="1" showInStore="1" showInWebsite="120" sortOrder="20" translate="label" type="text">
+                        <label>Validação</label>
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                    </field>
+                    <field id="line_min_length" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="text">
+                        <label>Tamanho mínimo</label>
+                        <comment></comment>
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                    </field>
+                    <field id="line_max_length" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label" type="text">
+                        <label>Tamanho máximo</label>
+                        <comment></comment>
+                        <depends>
+                            <field id="webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled">0</field>
+                        </depends>
+                    </field>
+                </group>
+                
+                <group id="webmaniabr_nfe_address_enable_off" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="900" translate="label">
+                    <depends>
+                        <field id="enabled">0</field>
+                    </depends>
+                    
+                    <label>Mapeamento de Campos</label>
+                    <comment>ATENÇÃO: Caso não utilize a personalização do módulo, configure os campos atualmente utilizados para os seguintes campos: </comment>
+                    <field id="line_endereco" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="5" translate="label" type="select">
+                        <label>Endereço</label>
+                        <source_model>Webmaniabr\Nfe\Config\Source\Linhasendereco</source_model>
+                    </field>
+                    
+                    <field id="line_numero" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="5" translate="label" type="select">
+                        <label>Número</label>
+                        <source_model>Webmaniabr\Nfe\Config\Source\Linhasendereco</source_model>
+                    </field>
+                    
+                    <field id="line_complemento" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="5" translate="label" type="select">
+                        <label>Complemento</label>
+                        <source_model>Webmaniabr\Nfe\Config\Source\Linhasendereco</source_model>
+                    </field>
+                    
+                    <field id="line_bairro" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="5" translate="label" type="select">
+                        <label>Bairro</label>
+                        <source_model>Webmaniabr\Nfe\Config\Source\Linhasendereco</source_model>
+                    </field>
+                </group>
+            </group>
+
+        </section>
+        
+        <section id="webmaniabr_nfe_avancado" translate="label" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Configurações Avançadas</label>
+            <tab>webmaniabr</tab>
+            <resource>Webmaniabr_Nfe::webmaniabr_nfe_avancado</resource>
+            
+            <group id="webmaniabr_nfe_debug" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                
+                <label>Configurações Avançadas</label>
+                
+                <field id="debug_enable" translate="label" type="radios" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Modo Desenvolvedor</label>
+                     <comment>ATENÇÃO: Só ative esta opção para realizar diagnóstico no envio dos dados para a API WebmaniaBR®.</comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Offon</source_model>
+               </field>
+
+            </group>
+
+        </section>
+
+    </system>
+</config>

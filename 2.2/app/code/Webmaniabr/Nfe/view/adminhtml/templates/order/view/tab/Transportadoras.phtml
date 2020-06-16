@@ -1,0 +1,232 @@
+<style type="text/css">
+
+    .edit-transportadoras-title {
+        margin: 0 0 2.4rem;
+        color: #41362f;
+        font-weight: 600;
+        line-height: 1.2;
+        font-size: 1.9rem;
+    }
+    
+    button#submit_transportadoras_nfe {
+        margin-top: 25px;
+    }
+    
+    .input_nfe {
+        width: 50%;
+        margin-top: 15px;
+    }
+    
+    label.label_transportadoras {
+        position: absolute;
+        font-weight: 600;
+    }
+    
+    input.input_transportadoras {
+        margin-top: 20px;
+    }
+
+</style>
+
+<?php
+    
+    // Get object manager to retrieve url
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
+    
+    // Retrieve the order id
+    $its_id = false;
+    $order_id = "";
+    $actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    
+    foreach ( explode("/", $actual_link) as $url_exploded ) {
+        
+        if ( $its_id ) {
+            $order_id = $url_exploded;
+            break;
+        }
+        
+        if ( $url_exploded == "order_id" ) {
+            $its_id = true;
+        }
+        
+    }
+    
+    // Create an object to SQL use
+    $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+    $connection = $resource->getConnection();
+    $tableName = $resource->getTableName('webmaniabrnfe_orders_transportadora');
+    
+    $sql = "SELECT * FROM " . $tableName . " WHERE order_id='" . $order_id . "'";
+    
+    $connection->query($sql);
+    
+    $result = $connection->fetchAll($sql);
+    
+    // Check if $result is not empty to avoid crash code
+    if( empty($result) ) {
+        
+        $transportadora_info = null;
+        
+    } else {
+
+        $transportadora_info["utilizar_transportadora"] = $result[0]["utilizar_transportadora"];
+        $transportadora_info["volume"] = $result[0]["volume"];
+        $transportadora_info["especie"] = $result[0]["especie"];
+        $transportadora_info["peso_bruto"] = $result[0]["peso_bruto"];
+        $transportadora_info["peso_liquido"] = $result[0]["peso_liquido"];
+        
+    }
+    
+    if ( $order_id ) {
+        
+        // Register secret key to verification
+        $tableName = $resource->getTableName('webmaniabrnfe_secret_keys');
+        
+        // Get the actual date
+        $date = date('Y-m-d H:i:s');
+
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $characters_length = strlen($characters);
+        $random_key = '';
+        
+        for ($i = 0; $i <= 10; $i++) {
+            $random_key .= $characters[rand(0, $characters_length - 1)];
+        }
+        
+        $secret_key = $order_id . "_" . $random_key;
+        
+        // Store the new key for secure request
+        $sql = "INSERT INTO " . $tableName . " ( secret_type, secret_key, requested_at )
+                VALUES ( 'nfe_ajax', '" . $secret_key . "', '" . $date . "' )";
+        
+        // Delete older keys        
+        $delete_date = date("Y-m-d H:i:s", strtotime('-24 hours', time()));
+        
+        $delete_sql = "DELETE FROM " . $tableName . "
+                WHERE secret_type='nfe_ajax' AND requested_at <= '$delete_date'";
+                
+        $connection->query($sql);
+        
+        $connection->query($delete_sql);
+        
+    }
+
+?>
+
+<section id="section_transportadoras" class="admin__page-section custom-tab-content"
+         data-url="<?php echo $storeManager->getStore()->getBaseUrl(); ?>"
+         data-id="<?php echo $order_id; ?>"
+         data-key="<?php echo $secret_key; ?>"
+        >
+
+    <div class="edit-transportadoras-title">Configurações para Transportadora</div>
+
+    <div class="input_nfe">
+        <label class="label_transportadoras" for="nfe_utilizar_transportadora">Utilizar transportadora e os seguintes dados <i>(Não é necessário preencher os campos para transportes com Correios)</i></label>
+        <input id="nfe_utilizar_transportadora" class="input_transportadoras" type="checkbox" name="nfe_utilizar_transportadora" <?php if ( isset($transportadora_info) ) { if ( $transportadora_info['utilizar_transportadora'] ) { echo 'checked'; } } ?> />
+    </div>
+
+    <div class="input_nfe">
+        <label class="label_transportadoras" for="nfe_volume">Volume</label>
+        <input id="nfe_volume" class="input_transportadoras" type="text" name="nfe_volume" value="<?php if ( isset($transportadora_info) ) { echo $transportadora_info['volume']; } ?>" />
+    </div>
+    
+    <div class="input_nfe">
+        <label class="label_transportadoras" for="nfe_especie">Espécie</label>
+        <input id="nfe_especie" class="input_transportadoras" type="text" name="nfe_especie" value="<?php if ( isset($transportadora_info) ) { echo $transportadora_info['especie']; } ?>" />
+    </div>
+    
+    <div class="input_nfe">
+        <label class="label_transportadoras" for="nfe_peso_bruto">Peso Bruto</label>
+        <input id="nfe_peso_bruto" class="input_transportadoras" type="text" name="nfe_peso_bruto" value="<?php if ( isset($transportadora_info) ) { echo $transportadora_info['peso_bruto']; } ?>" />
+    </div>
+    
+    <div class="input_nfe">
+        <label class="label_transportadoras" for="nfe_peso_liquido">Peso Líquido</label>
+        <input id="nfe_peso_liquido" class="input_transportadoras" type="text" name="nfe_peso_liquido" value="<?php if ( isset($transportadora_info) ) { echo $transportadora_info['peso_liquido']; } ?>" />
+    </div>
+    
+    <button id="submit_transportadoras_nfe" onClick="send_data_transportadoras()">Salvar Dados</button>
+    <br><br>
+    <span id="response_transportadoras_nfe"></span>
+
+</section>
+
+<script type="text/javascript">
+
+    function send_data_transportadoras() {
+        
+        var validacao = true;
+        var msg = "";
+        var utilizar = document.getElementById('nfe_utilizar_transportadora').checked;
+        var volume = document.getElementById('nfe_volume').value;
+        var especie = document.getElementById('nfe_especie').value;
+        var peso_bruto = document.getElementById('nfe_peso_bruto').value;
+        var peso_liquido = document.getElementById('nfe_peso_liquido').value;
+        
+        if ( utilizar ) { utilizar = '1'; } else { utilizar = '0'; }
+        
+        if (volume.length == 0 & utilizar ) {
+            validacao = false;
+            msg = "O campo volume é obrigatório <br>";
+        }
+        
+        if (especie.length == 0 & utilizar ) {
+            validacao = false;
+            msg += "O campo espécie é obrigatório <br>";
+        }
+        
+        if (peso_bruto.length == 0 & utilizar ) {
+            validacao = false;
+            msg += "O campo peso bruto é obrigatório <br>";
+        }
+        
+        if (peso_liquido.length == 0 & utilizar ) {
+            validacao = false;
+            msg += "O campo peso líquido é obrigatório <br>";
+        }
+        
+        if ( !validacao ) {
+            document.getElementById("response_transportadoras_nfe").innerHTML = msg;
+            return;
+        }
+        
+        // Disable button
+        document.getElementById("submit_transportadoras_nfe").disabled = true;
+        
+        // Insert feedback
+        document.getElementById("response_transportadoras_nfe").innerHTML = "Requisição enviada! Aguarde, por gentileza.";
+        
+        var xhttp;
+        
+        // Build url e parameters to request
+        var url = document.getElementById("section_transportadoras").dataset.url + "webmaniabrnfe/index/nfeactions";
+        var order_id = document.getElementById("section_transportadoras").dataset.id;
+        var key = document.getElementById("section_transportadoras").dataset.key;
+        
+        var parms = "action=updatetransportadora&key=" + key + "&utilizar_transportadora=" + utilizar + "&order_id=" + order_id + "&volume=" + volume + "&especie=" + especie + "&peso_bruto=" + peso_bruto + "&peso_liquido=" + peso_liquido;
+        
+        xhttp = new XMLHttpRequest();
+        
+        xhttp.open("POST", url , true);
+        
+        xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        
+        xhttp.onreadystatechange = function() {
+            
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("response_transportadoras_nfe").innerHTML = this.responseText;
+                document.getElementById("submit_transportadoras_nfe").disabled = false;
+            } else {
+                document.getElementById("response_transportadoras_nfe").innerHTML = "Houve uma falha na comunicação, tente novamente ou contate o suporte técnico.";
+                document.getElementById("submit_transportadoras_nfe").disabled = false;
+            }
+            
+        };
+
+        xhttp.send(parms);
+        
+    }
+
+</script>

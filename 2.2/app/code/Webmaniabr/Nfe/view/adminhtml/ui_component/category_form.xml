@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <fieldset name="webmaniabrnfe_categories_taxes">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Informações Fiscais (NF-e)</item>
+                <item name="collapsible" xsi:type="boolean">true</item>
+                <item name="sortOrder" xsi:type="number">100</item>
+            </item>
+        </argument>
+        <field name="category_ncm">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="sortOrder" xsi:type="number">10</item>
+                    <item name="dataType" xsi:type="string">string</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="label" xsi:type="string" translate="true">NCM</item>
+                    <item name="required" xsi:type="boolean">false</item>
+                </item>
+            </argument>
+        </field>
+    </fieldset>
+</form>

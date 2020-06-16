@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+   <type name="Magento\Framework\Notification\MessageList">
+       <arguments>
+           <argument name="messages" xsi:type="array">
+               <item name="AddressesLines" xsi:type="string">Webmaniabr\Nfe\Model\Adminhtml\System\Message\AddressesLines</item>
+           </argument>
+       </arguments>
+       
+       <arguments>
+           <argument name="messages" xsi:type="array">
+               <item name="tokens" xsi:type="string">Webmaniabr\Nfe\Model\Adminhtml\System\Message\Tokens</item>
+           </argument>
+       </arguments>
+       
+       <arguments>
+           <argument name="messages" xsi:type="array">
+               <item name="PaymentMethods" xsi:type="string">Webmaniabr\Nfe\Model\Adminhtml\System\Message\PaymentMethods</item>
+           </argument>
+       </arguments>
+       
+       <arguments>
+           <argument name="messages" xsi:type="array">
+               <item name="ModuleConfig" xsi:type="string">Webmaniabr\Nfe\Model\Adminhtml\System\Message\ModuleConfig</item>
+           </argument>
+       </arguments>
+       
+       <arguments>
+           <argument name="messages" xsi:type="array">
+               <item name="Certificado" xsi:type="string">Webmaniabr\Nfe\Model\Adminhtml\System\Message\Certificado</item>
+           </argument>
+       </arguments>
+
+   </type>
+   
+    <type name="Magento\Sales\Block\Adminhtml\Order\View">
+        <plugin name="webmaniabr_adminhtml_view_emitir_nfe_button" type="Webmaniabr\Nfe\Block\Adminhtml\Order\View\Button\OrderViewButton"/>
+    </type>
+
+</config>

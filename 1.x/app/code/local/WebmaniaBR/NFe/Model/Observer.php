@@ -443,8 +443,6 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
       curl_setopt($rest, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
       curl_setopt($rest, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_NONE);
       curl_setopt($rest, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
-      curl_setopt($rest, CURLOPT_VERBOSE, 1);
-      curl_setopt($rest, CURLOPT_HEADER, 1);
       
       // Connect to API
       $response = curl_exec($rest);

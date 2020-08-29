@@ -13,7 +13,7 @@ Através do emissor de Nota Fiscal da WebmaniaBR®, você conta com a emissão e
 
 ## Requisitos
 
-- Contrate um dos planos de Nota Fiscal Eletrônica da WebmaniaBR® a partir de R$29,90/mês: [Assine Agora](https://webmaniabr.com/nota-fiscal-eletronica/)
+- Contrate um dos planos de Nota Fiscal Eletrônica da WebmaniaBR® a partir de R$34,90/mês: [Assine Agora](https://webmaniabr.com/nota-fiscal-eletronica/)
 - Instale o módulo grátis do Magento da WebmaniaBR® e configure conforme instruções.
 
 ## Instalação

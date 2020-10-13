@@ -131,6 +131,12 @@
                      <comment></comment>
                      <source_model>Webmaniabr\Nfe\Config\Source\Origemprodutos</source_model>
                </field>
+               
+               <field id="frete_padrao" translate="label" sortOrder="11" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                     <label>Modalidade do Frete Padrão</label>
+                     <comment></comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\FretePadrao</source_model>
+               </field>
 
             </group>
 

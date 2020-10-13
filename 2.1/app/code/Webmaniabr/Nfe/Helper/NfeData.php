@@ -6,22 +6,27 @@ use Magento\Ui\Component\MassAction\Filter;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use \Magento\Catalog\Model\ProductFactory;
 use \Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
 
 class NfeData
 {
     protected $scopeConfig;
 
     protected $productFactory;
+    
+    protected $productRepository;
 
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         ProductFactory $productFactory,
-       WriterInterface $configWriter
+        WriterInterface $configWriter,
+        ProductRepositoryInterface $productRepository
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $this->_productFactory = $productFactory;
         $this->configWriter = $configWriter;
+        $this->productRepository = $productRepository;
     }
 
     /* Return option nfe_duplicada saved in Stores -> Configuration -> WebmaniaBR NF-e
@@ -121,6 +126,7 @@ class NfeData
         $unidade = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_configuracao_padrao/unidade_nfe', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         $indicador_escala_relevante = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_configuracao_padrao/indicador_escala_relevante', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         $origem_produto = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_configuracao_padrao/origem_produto', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $frete_padrao = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_configuracao_padrao/frete_padrao', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
         $dados_tributo = array (
             "natureza_operacao" => $natureza_operacao,
@@ -132,7 +138,8 @@ class NfeData
             "codigo_cest" => $codigo_cest,
             "unidade_nfe" => ($unidade == 1 ? 'UN' : 'KG'),
             "indicador_escala_relevante" => $indicador_escala_relevante,
-            "origem_produto" => $origem_produto
+            "origem_produto" => $origem_produto,
+            "frete_padrao" => $frete_padrao
         );
 
         return $dados_tributo;
@@ -504,6 +511,133 @@ class NfeData
         $connection->query($sql);
 
     }
+    
+    /* Get product information from order
+    /* @param (int) $order_id
+    /* @param (int) $product_id
+    /* @param (int) $qnty
+    /* @param (float) $price
+    /* @param (float) $total_price
+    /* @param (array) $order_id
+    /*
+    /* return (array) $order_details | $error
+    */
+    public function get_product_info($order_id, $product_id, $qnty, $price, $total_price, $dados_tributo) {
+        
+        $orderItem = $this->productRepository->getById($product_id);
+        
+        // Calculate the weight
+        $unit_weight = number_format($orderItem->getWeight(), 4, '.', '');
+
+        if ( !$unit_weight || floatval($unit_weight) == "0" ) {
+            // Return Error: PRODUCT HAS NO WEIGTH
+            $message = "O produto <b>" . $orderItem->getName() . "</b> do pedido #" . $order_id . " não possui um peso válido, por favor, cadastre antes de continuar";
+            
+            return array(
+                'error' => true,
+                'message' => $message
+            );
+        }
+        
+        // Store the codigo_ncm value of the product
+        $product_ncm = $orderItem->getData('codigo_ncm');
+
+        // If is not set codigo_ncm in product, search in categories
+        if( empty($product_ncm) ) {
+
+            $product = $categories = null;
+
+            $product = $this->_productFactory->create()->load($orderItem->getProductId());
+
+            $categories = $product->getCategoryIds();
+
+            if( isset($categories) ) {
+
+                foreach($categories as $cat_id) {
+
+                    $category = $this->_objectManager->create('Magento\Catalog\Model\Category')->load($cat_id);
+
+                    $product_ncm = $category->getData('category_ncm');
+                    if($product_ncm) break;
+
+                }
+
+            }
+
+            // If the codigo_ncm is still missing, add the global value in Stores -> Configuration -> WebmaniaBR NF-e
+            if(empty($product_ncm)) $product_ncm = $dados_tributo["codigo_ncm"];
+
+        }
+
+        // Set the codigo_ean value
+        $product_ean = $orderItem->getData('codigo_ean');
+        if(empty($product_ean)) $product_ean = $dados_tributo["gtin"];
+
+        // Set the codigo_cest value
+        $product_cest = $orderItem->getData('codigo_cest');
+        if(empty($product_cest)) $product_cest = $dados_tributo["codigo_cest"];
+
+        // Set the unidade_nfe value
+        $product_unidade = $orderItem->getAttributeText('unidade_nfe');
+        if( !$product_unidade || $product_unidade == "Definir via Configurações Gerais") {
+            $product_unidade = $dados_tributo["unidade_nfe"];
+        }else{
+            $product_unidade = ($product_unidade == "Kilograma" ? "KG" : "UN");
+        }
+
+        // Set the classe_imposto value
+        $product_classe_imposto = $orderItem->getData('classe_imposto');
+        if ( is_null($product_classe_imposto)) $product_classe_imposto = $dados_tributo["classe_imposto"];
+
+        // Set the origem_produto value
+        $product_origem = substr($orderItem->getAttributeText('origem_produto'), 0, 1);
+
+        if ( (empty($product_origem) || $product_origem == "D") &&  $product_origem != "0" ) {
+            $product_origem = substr($dados_tributo["origem_produto"], 0, 1);
+        }
+
+        if ( (empty($product_origem) || $product_origem == "D") &&  $product_origem != "0" ) {
+            // Return Error: PRODUCT HAS NO PRODUCT_ORIGEM
+            $message = "O produto <b>" . $orderItem->getName() . "</b> do pedido #" . $order_id . " não possui uma origem de produto válido, por favor, cadastre antes de continuar";
+            
+            return array(
+                'error' => true,
+                'message' => $message
+            );
+        }
+
+        // Check if product is configurable
+        $orderItemOptions = $orderItem->getProductOptions();
+
+        if  ( isset($orderItemOptions['simple_name']) ) {
+            $product_name = $orderItemOptions['simple_name'];
+        } else {
+            $product_name = $orderItem->getName();
+        }
+
+        if  ( isset($orderItemOptions['simple_sku']) ) {
+            $product_sku = $orderItemOptions['simple_sku'];
+        } else {
+            $product_sku = $orderItem->getSku();
+        }
+
+        $order_details = array(
+            'nome' => $product_name,
+            'sku' => $product_sku,
+            'ean' => $product_ean,
+            'ncm' => $product_ncm,
+            'cest' => $product_cest,
+            'quantidade' => $qnty,
+            'unidade' => $product_unidade,
+            'peso' => $unit_weight,
+            'origem' => $product_origem,
+            'subtotal' => number_format($price, 2, '.', ''),
+            'total' => number_format($total_price, 2, '.', ''),
+            'classe_imposto' => $product_classe_imposto
+        );
+        
+        return $order_details;
+    }
 
     /* Return the product informations
     /*
@@ -524,7 +658,7 @@ class NfeData
             $secret_key = $this->manage_secret_key($order_id, "nfe_callback");
 
             $order_details["ID"] = $order_id;
-            $order_details["origem"] = "magento_2.0-2.1";
+            $order_details["origem"] = "magento_2.2-2.3";
             $order_details['url_notificacao'] = $storeManager->getStore()->getBaseUrl() . "webmaniabrnfe/index/nfeactions/?nfe_callback=" . $secret_key . "&order_id=" . $order_id;
             $order_details["operacao"] = 1;
             $order_details["natureza_operacao"] = $dados_tributo["natureza_operacao"];
@@ -571,7 +705,7 @@ class NfeData
                 // If is not set 3 fields for address, return false and alert the user
                 if( count($cliente_details_address) < 3 ) {
                     // Return Error: IF THE ADDRESS FIELDS SIZE IS LOWER THAN 3 ('Complemento' is opcional)
-                    //return "Os campos de endereço do pedido #". $order_id ." não estão configurados corretamente, por favor, configure-os antes de prosseguir.";
+                    return "Os campos de endereço do pedido #". $order_id ." não estão configurados corretamente, por favor, configure-os antes de prosseguir.";
                 }
 
                 // If the state is not definied
@@ -593,14 +727,15 @@ class NfeData
                 } else {
                     $complemento = "";
                 }
-
+                
                 if ( !isset($cliente_details_address[3]) ) {
                     return "O campo de bairro do pedido #". $order_id ." não está configurado corretamente, por favor, configure-os antes de prosseguir";
                 } else {
                     $bairro = $cliente_details_address[3];
                 }
+                
 
-            // // Else let the user define the order
+            // Else let the user define the order
             } else {
 
                 $address_maped = $this->get_linhas_endereco_maped();
@@ -613,8 +748,12 @@ class NfeData
                 } else {
                     $complemento = "";
                 }
-
-                $bairro = $cliente_details_address[$address_maped["bairro"]];
+                
+                if ( !isset($cliente_details_address[$address_maped["bairro"]]) ) {
+                    return "O campo de bairro do pedido #". $order_id ." não está configurado corretamente, por favor, configure-os antes de prosseguir";
+                } else {
+                    $bairro = $cliente_details_address[$address_maped["bairro"]];
+                }
 
             }
 
@@ -642,129 +781,92 @@ class NfeData
             $shipping_price = number_format($order->getShippingAmount(), 2, '.', '');
             $discount = number_format(abs($order->getDiscountAmount()), 2, '.', '');
             $total_order_price = number_format($order->getGrandTotal(), 2, '.', '');
+            $order_details["produtos"] = [];
 
             foreach ($orderItems as $orderItem) {
 
                 // Pre-build the data
+                $product_id = $orderItem->getProductId();
+                $product_type = $orderItem->getProductType(); // bundle
                 $qnty = $orderItem->getQtyordered();
                 $price = number_format($orderItem->getPrice(), 2, '.', '');
                 $total_price = $price * $qnty;
 
                 // Ignore the product
                 if ( $orderItem->getProduct()->getData('ignorar_nfe') ) {
-
                     $total_order_price -= $total_price;
-
                     continue;
-
-                } else {
-
-                    // Calculate the weight
-                    $unit_weight = number_format($orderItem->getWeight(), 4, '.', '');
-
-                    if ( !$unit_weight || floatval($unit_weight) == "0" ) {
-                        // Return Error: PRODUCT HAS NO WEIGTH
-                        return "O produto <b>" . $orderItem->getName() . "</b> do pedido #" . $order_id . " não possui um peso válido, por favor, cadastre antes de continuar";
-                    }
-
-                    $total_weight += ($unit_weight * $qnty);
-
-                    $total_items_qnty += $qnty;
-
                 }
+                
+                // If product is bundle
+                if ( $product_type == 'bundle' ) {
 
-                // Store the codigo_ncm value of the product
-                $product_ncm = $orderItem->getProduct()->getData('codigo_ncm');
+                    $product_options = $orderItem->getProductOptions();
+                    $products = [];
 
-                // If is not set codigo_ncm in product, search in categories
-                if( empty($product_ncm) ) {
+                    if ( isset($product_options['bundle_options']) ) {
+    
+                        // Get childrens ids from bundle     
+                        $bundle_product = $this->productRepository->getById($product_id);
+                        $typeInstance = $bundle_product->getTypeInstance();
+                        $bundle_ids = $typeInstance->getChildrenIds($product_id, true);
 
-                    $product = $categories = null;
+                        // Build an array with childrens ids
+                        if ($bundle_ids) {
+                            $children_ids = [];
+                            foreach ($bundle_ids as $key => $arr_id) {
+                                foreach ($arr_id as $id) {
+                                    $children_ids[$key] = $id;
+                                }
+                            }
+                        }
+                        
+                        foreach ($product_options['bundle_options'] as $product) {
+                            // Product Bundle information
+                            $bundle_id = $product['option_id'];
+                            $bundle_product_id = $children_ids[$bundle_id];
 
-                    $product = $this->_productFactory->create()->load($orderItem->getProductId());
+                            // Bundle options
+                            $price = number_format($product['value'][0]['price'], 2, '.', '')/$product['value'][0]['qty'];
+                            $bundle_product_qnty = (int) $product['value'][0]['qty'] * $qnty;
+                            $total_price = number_format($bundle_product_qnty*$price, 2, '.', '');
+                            
+                            // Create the product array
+                            $product_info = $this->get_product_info($order_id, $bundle_product_id, $bundle_product_qnty, $price, $total_price, $dados_tributo);
 
-                    $categories = $product->getCategoryIds();
-
-                    if( isset($categories) ) {
-
-                        foreach($categories as $cat_id) {
-
-                            $category = $this->_objectManager->create('Magento\Catalog\Model\Category')->load($cat_id);
-
-                            $product_ncm = $category->getData('category_ncm');
-                            if($product_ncm) break;
-
+                            if (isset($product_info['error'])) {
+                                return $product_info['message'];
+                            }
+                            
+                            $unit_weight = $product_info['peso'];
+                            $product_qnty = $product_info['quantidade'];
+                            
+                            $total_weight += ($unit_weight * $product_qnty);
+                            $total_items_qnty += $product_qnty;
+                            
+                            $products[] = $product_info;
                         }
 
                     }
 
-                    // If the codigo_ncm is still missing, add the global value in Stores -> Configuration -> WebmaniaBR NF-e
-                    if(empty($product_ncm)) $product_ncm = $dados_tributo["codigo_ncm"];
+                    $order_details["produtos"] = array_merge($order_details["produtos"], $products);
 
-                }
-
-                // Set the codigo_ean value
-                $product_ean = $orderItem->getProduct()->getData('codigo_ean');
-                if(empty($product_ean)) $product_ean = $dados_tributo["gtin"];
-
-                // Set the codigo_cest value
-                $product_cest = $orderItem->getProduct()->getData('codigo_cest');
-                if(empty($product_cest)) $product_cest = $dados_tributo["codigo_cest"];
-
-                // Set the unidade_nfe value
-                $product_unidade = $orderItem->getProduct()->getAttributeText('unidade_nfe');
-                if( !$product_unidade || $product_unidade == "Definir via Configurações Gerais") {
-                    $product_unidade = $dados_tributo["unidade_nfe"];
-                }else{
-                    $product_unidade = ($product_unidade == "Kilograma" ? "KG" : "UN");
-                }
-
-                // Set the classe_imposto value
-                $product_classe_imposto = $orderItem->getProduct()->getData('classe_imposto');
-                if ( is_null($product_classe_imposto)) $product_classe_imposto = $dados_tributo["classe_imposto"];
-
-                // Set the origem_produto value
-                $product_origem = substr($orderItem->getProduct()->getAttributeText('origem_produto'), 0, 1);
-
-                if ( (empty($product_origem) || $product_origem == "D") &&  $product_origem != "0" ) {
-                    $product_origem = substr($dados_tributo["origem_produto"], 0, 1);
-                }
-
-                if ( (empty($product_origem) || $product_origem == "D") &&  $product_origem != "0" ) {
-                        // Return Error: PRODUCT HAS NO PRODUCT_ORIGEM
-                        return "O produto <b>" . $orderItem->getName() . "</b> do pedido #" . $order_id . " não possui uma origem de produto válido, por favor, cadastre antes de continuar";
-                }
-
-                // Check if product is configurable
-                $orderItemOptions = $orderItem->getProductOptions();
-
-                if  ( isset($orderItemOptions['simple_name']) ) {
-                    $product_name = $orderItemOptions['simple_name'];
                 } else {
-                    $product_name = $orderItem->getName();
+                    // Create the product array
+                    $product_info = $this->get_product_info($order_id, $product_id, $qnty, $price, $total_price, $dados_tributo);
+                    
+                    if (isset($product_info['error'])) {
+                        return $product_info['message'];
+                    }
+                    
+                    $unit_weight = $product_info['peso'];
+                    $product_qnty = $product_info['quantidade'];
+                    
+                    $total_weight += ($unit_weight * $product_qnty);
+                    $total_items_qnty += $product_qnty;
+                    
+                    $order_details["produtos"][] = $product_info;
                 }
-
-                if  ( isset($orderItemOptions['simple_sku']) ) {
-                    $product_sku = $orderItemOptions['simple_sku'];
-                } else {
-                    $product_sku = $orderItem->getSku();
-                }
-
-                // Create the product array
-                $order_details["produtos"][] = array(
-                    'nome' => $product_name,
-                    'sku' => $product_sku,
-                    'ean' => $product_ean,
-                    'ncm' => $product_ncm,
-                    'cest' => $product_cest,
-                    'quantidade' => $qnty,
-                    'unidade' => $product_unidade,
-                    'peso' => $unit_weight,
-                    'origem' => $product_origem,
-                    'subtotal' => number_format($price, 2, '.', ''),
-                    'total' => number_format($total_price, 2, '.', ''),
-                    'classe_imposto' => $product_classe_imposto
-                );
 
             }
 
@@ -806,7 +908,7 @@ class NfeData
             $order_details["pedido"]["pagamento"] = 0;
             $order_details["pedido"]["forma_pagamento"] = $metodo_codigo;
             $order_details["pedido"]["presenca"] = 2;
-            $order_details["pedido"]["modalidade_frete"] = 0;
+            $order_details["pedido"]["modalidade_frete"] = isset($dados_tributo['frete_padrao']) ? $dados_tributo['frete_padrao'] : 0;
             $order_details["pedido"]["frete"] = $shipping_price;
             $order_details["pedido"]["desconto"] = $discount;
             $order_details["pedido"]["total"] = $total_order_price;
@@ -1055,7 +1157,7 @@ class NfeData
         $rest = curl_init();
         curl_setopt($rest, CURLOPT_CONNECTTIMEOUT , $timeout);
         curl_setopt($rest, CURLOPT_TIMEOUT, $timeout);
-        curl_setopt($rest, CURLOPT_URL, $endpoint);
+        curl_setopt($rest, CURLOPT_URL, $endpoint.'?time='.time());
         curl_setopt($rest, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($rest, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($rest, CURLOPT_SSL_VERIFYHOST, false);
@@ -1064,9 +1166,6 @@ class NfeData
         curl_setopt($rest, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($rest, CURLOPT_FRESH_CONNECT, true);
         curl_setopt($rest, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($rest, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-        curl_setopt($rest, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_NONE);
-        curl_setopt($rest, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
 
         // Connect to API
         $response = curl_exec($rest);
@@ -1091,7 +1190,7 @@ class NfeData
           }
           // cURL errors
           if (!$http_status){
-            $curl_error->error = 'Não foi possível obter conexão na API da WebmaniaBR®, possível relação com bloqueio no Firewall ou versão antiga do PHP. Verifique junto ao programador e a sua hospedagem a comunicação na URL: https://webmaniabr.com/api/. (cURL: '.$curl_strerror.' | PHP: '.phpversion().' | cURL: '.curl_version()['version'].')';
+            $curl_error->error = 'Não foi possível obter conexão na API da WebmaniaBR®, possível relação com bloqueio no Firewall ou versão antiga do PHP. Verifique junto ao programador e a sua hospedagem a comunicação na URL: https://webmaniabr.com/api/. (cURL: '.$curl_strerror.' | PHP: '.phpversion().' | cURL: '.curl_version().')';
           } elseif ($http_status == 500) {
             $curl_error->error = 'Ocorreu um erro ao processar a sua requisição. A nossa equipe já foi notificada, em caso de dúvidas entre em contato com o suporte da WebmaniaBR®. (cURL: '.$curl_strerror.' | HTTP Code: '.$http_status.' | IP: '.$ip.')';
           } elseif (!in_array($http_status, array(401, 403))) {

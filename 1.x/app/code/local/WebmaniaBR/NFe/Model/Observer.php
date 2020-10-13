@@ -85,6 +85,11 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
           'total' => number_format($order->getGrandTotal(), 2, '.', '')
         ),
       );
+      
+      $shipping_method = Mage::getStoreConfig('nfe/section_four/frete_padrao', Mage::app()->getStore());
+      if(isset($shipping_address) && $shipping_method >= 0) {
+        $data['pedido']['modalidade_frete'] = $shipping_method;
+      }
 
       // Set user
       $cpf_cnpj = str_replace( array('/', '.', '-'), '', $order->getData('customer_taxvat'));

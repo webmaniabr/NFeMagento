@@ -28,19 +28,19 @@ Consulte o nosso guia passo a passo para começar a emitir as notas fiscais com 
 - [Configurar Impostos](https://ajuda.webmaniabr.com/hc/pt-br/articles/360013346391-Configurar-impostos-no-Magento)
 - [Emitir Nota Fiscal](https://ajuda.webmaniabr.com/hc/pt-br/articles/360013126992-Emiss%C3%A3o-de-NF-e-no-Magento)
 
-## Adaptar página Finalizar Compra (opcional versões 1.x)
+## Adaptar página Finalizar Compra
 
 Para a emissão correta da Nota Fiscal Eletrônica é importante ter os seguintes campos obrigatórios na página Finalizar Compra:
 
-- CPF
-- Nome completo
-- Endereço
-- Número
-- Complemento (caso houver)
+- CPF/CNPJ - Registrado no campo vat_id (VAT) do Magento 2.X
+- Nome completo / Razão Social
+- Endereço - Mapeamento [Saiba mais](https://ajuda.webmaniabr.com/hc/pt-br/articles/360051814852)
+- Número - Mapeamento [Saiba mais](https://ajuda.webmaniabr.com/hc/pt-br/articles/360051814852)
+- Complemento - Mapeamento [Saiba mais](https://ajuda.webmaniabr.com/hc/pt-br/articles/360051814852)
 - Bairro
 - Cidade
 - Estado
-- CEP (utilizado como padrão o campo Tax VAT)
+- CEP
 
 Na pasta ```/app/design/``` possui exemplos de como deve ser a página Finalizar Compra e a amostragem dos campos no painel de controle do Magento. Mais informações de configuração você encontra no site Comunidade Magento: http://www.comunidademagento.com.br/portal/adicionando-campos-de-endereco/
 

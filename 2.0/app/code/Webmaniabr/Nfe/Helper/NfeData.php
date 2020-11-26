@@ -643,7 +643,7 @@ class NfeData
     /*
     /* return array
     */
-    public function get_the_order_data_by_id ( $order_id ) {
+    public function get_the_order_data_by_id ( $order_id, $bath_process = false ) {
 
         $order = $this->_objectManager->create('Magento\Sales\Model\Order')->load($order_id);
         $storeManager = $this->_objectManager->get('\Magento\Store\Model\StoreManagerInterface');
@@ -658,7 +658,7 @@ class NfeData
             $secret_key = $this->manage_secret_key($order_id, "nfe_callback");
 
             $order_details["ID"] = $order_id;
-            $order_details["origem"] = "magento_2.2-2.3";
+            $order_details["origem"] = "magento_2.1";
             $order_details['url_notificacao'] = $storeManager->getStore()->getBaseUrl() . "webmaniabrnfe/index/nfeactions/?nfe_callback=" . $secret_key . "&order_id=" . $order_id;
             $order_details["operacao"] = 1;
             $order_details["natureza_operacao"] = $dados_tributo["natureza_operacao"];
@@ -667,7 +667,7 @@ class NfeData
             $order_details["finalidade"] = 1;
             $order_details["ambiente"] = $this->get_ambiente_sefaz();
             
-            if ( $this->get_emissao_assincrona() ) {
+            if ($bath_process){
                 $order_details["assincrono"] = 1;
             }
 
@@ -1136,7 +1136,7 @@ class NfeData
             strpos($endpoint, '/sefaz/') !== false ||
             strpos($endpoint, '/certificado/') !== false
         ){
-            $timeout = 5;
+            $timeout = 15;
         } else {
             $timeout = 300;
         }
@@ -1155,7 +1155,7 @@ class NfeData
 
         // Init connection
         $rest = curl_init();
-        curl_setopt($rest, CURLOPT_CONNECTTIMEOUT , $timeout);
+        curl_setopt($rest, CURLOPT_CONNECTTIMEOUT , 10);
         curl_setopt($rest, CURLOPT_TIMEOUT, $timeout);
         curl_setopt($rest, CURLOPT_URL, $endpoint.'?time='.time());
         curl_setopt($rest, CURLOPT_RETURNTRANSFER, true);

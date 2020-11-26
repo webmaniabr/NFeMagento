@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <tab id="webmaniabr" translate="label" sortOrder="10">
-            <label>WebmaniaBR NF-e</label>
+            <label>WebmaniaBR NF-e - v3.1.6</label>
         </tab>
         
         <section id="webmaniabr_nfe_configs" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -17,12 +17,6 @@
                 <field id="enable" translate="label" type="radios" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Ativar Módulo</label>
                      <comment></comment>
-                     <source_model>Webmaniabr\Nfe\Config\Source\Offon</source_model>
-               </field>
-               
-                <field id="nfe_duplicada" translate="label" type="radios" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Permitir Emissão Dupla de NF-e</label>
-                     <comment>Permitir que haja emissão de uma NF-e após obter status "Emitida"</comment>
                      <source_model>Webmaniabr\Nfe\Config\Source\Offon</source_model>
                </field>
                 
@@ -60,12 +54,6 @@
             <group id="group_configuracao_padrao" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Configuração Padrão</label>
                 
-               <field id="emissao_assincrona" translate="label" sortOrder="1" type="radios" showInDefault="1" showInWebsite="0" showInStore="0">
-                     <label>Emissão Assíncrona</label>
-                     <comment>A emissão assíncrona aumenta a velocidade das emissões de Nota Fiscal , o status da NF-e é atualizado automaticamente assim que obtido o retorno do Sefaz.</comment>
-                     <source_model>Webmaniabr\Nfe\Config\Source\Offon</source_model>
-               </field>
-                
                <field id="emissao_automatica" translate="label" sortOrder="1" type="radios" showInDefault="1" showInWebsite="0" showInStore="0">
                      <label>Emissão Automática</label>
                      <comment></comment>
@@ -74,7 +62,7 @@
                 
                <field id="envio_email" translate="label" sortOrder="2" type="radios" showInDefault="1" showInWebsite="0" showInStore="0">
                      <label>Envio automático de e-mail</label>
-                     <comment>Atenção: O email será enviado mesmo para notas emitidas em ambiente de homologação!</comment>
+                     <comment></comment>
                      <source_model>Webmaniabr\Nfe\Config\Source\Offon</source_model>
                </field>
                 

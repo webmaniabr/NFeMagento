@@ -11,9 +11,9 @@ xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
             </group_access_token_configs>
             
             <group_configuracao_padrao>
-                <emissao_assincrona>0</emissao_assincrona>
+                <emissao_assincrona>1</emissao_assincrona>
                 <emissao_automatica>0</emissao_automatica>
-                <envio_email>0</envio_email>
+                <envio_email>1</envio_email>
                 <modelo>1</modelo>
                 <unidade_nfe>1</unidade_nfe>
                 <indicador_escala_relevante>-1</indicador_escala_relevante>

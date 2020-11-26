@@ -49,11 +49,16 @@ class AddressesLines implements MessageInterface
         $custom_address = $this->scopeConfig->getValue('webmaniabr_nfe_address/webmaniabr_nfe_address_lines/enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         
         // The message will be shown
-        if( $address_lines < 4 && !$custom_address ){
-            return true;
-        } else {
+        if ($custom_address){
+
             return false;
+            
+        } elseif ( $address_lines && $address_lines < 4 ){
+
+            return true;
+
         }
+
    }
 
    /**
@@ -64,7 +69,7 @@ class AddressesLines implements MessageInterface
     public function getText()
     {
 
-        return 'WebmaniaBR NF-e: Configure o mapeamento dos campos de endereço do seu site. <br>';
+        return 'WebmaniaBR NF-e: Configure o mapeamento das linhas de endereço do site. Obrigatório: Endereço, Número, Complemento e Bairro. <br>';
 
     }
 

@@ -284,7 +284,7 @@ class Nfeactions extends \Magento\Framework\App\Action\Action implements CsrfAwa
                 <div class='box'>
                     <h1>WebmaniaBR</h1>
 
-                    A NF-e do pedido #<?php echo $order_id; ?> foi gerada com sucesso. 
+                    Nota Fiscal do pedido nº <?php echo $order_id; ?> gerada com sucesso. 
                     
                     <br><br> Essa página irá fechar em <span id='counter'>5</span> segundos.
                 </div>

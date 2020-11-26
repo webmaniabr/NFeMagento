@@ -417,7 +417,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
           strpos($endpoint, '/sefaz/') !== false ||
           strpos($endpoint, '/certificado/') !== false
       ){
-          $timeout = 5;
+          $timeout = 15;
       } else {
           $timeout = 300;
       }
@@ -434,7 +434,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
       // Init connection
       $rest = curl_init();
-      curl_setopt($rest, CURLOPT_CONNECTTIMEOUT , $timeout);
+      curl_setopt($rest, CURLOPT_CONNECTTIMEOUT , 10);
       curl_setopt($rest, CURLOPT_TIMEOUT, $timeout);
       curl_setopt($rest, CURLOPT_URL, $endpoint);
       curl_setopt($rest, CURLOPT_RETURNTRANSFER, true);

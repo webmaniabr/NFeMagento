@@ -13,8 +13,8 @@ class Offon implements \Magento\Framework\Option\ArrayInterface
       public function toOptionArray()
       {
         return array(
-          array('value'=> 0, 'label'=> 'Desativado'),
           array('value'=> 1, 'label'=> 'Ativado'),
+          array('value'=> 0, 'label'=> 'Desativado')
         );
       }
 }

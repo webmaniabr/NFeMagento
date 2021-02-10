@@ -677,23 +677,33 @@ class NfeData
 
             $cliente_details = $order->getShippingAddress();
 
+            // Get VAT from Shipping Address
+            $cpf_cnpj = $cliente_details->getData('vat_id');
+
+            // If Shipping address' VAT doesn't exist, get it from Customer
+            if (is_null($cpf_cnpj) || empty($cpf_cnpj)) {
+
+                $cpf_cnpj = $order->getData('customer_taxvat');
+
+            }
+
             // If the field used is Tax VAT
-            $cpf_cnpj = str_replace( array('/', '.', '-'), '', $cliente_details->getData('vat_id'));
+            $cpf_cnpj = str_replace( array('/', '.', '-'), '', $cpf_cnpj);
 
             if (strlen($cpf_cnpj) == 14) {
 
-                $order_details['cliente']['cnpj'] = $cliente_details->getData('vat_id');
+                $order_details['cliente']['cnpj'] = $cpf_cnpj;
                 $order_details['cliente']['razao_social'] = $cliente_details->getFirstname().' '.$cliente_details->getLastname();
                 // if ($customerData->getData('inscest')) $data['cliente']['ie'] = $customerData->getData('inscest');
 
             } else {
 
-                if( is_null($cliente_details->getData('vat_id')) ) {
+                if( is_null($cpf_cnpj) || empty($cpf_cnpj) ) {
                     // Return Error: IF THE FIELD CPF (VAT_ID) IS NULL
                     return "O campo de CPF do pedido #". $order_id ." não está configurado corretamente, por favor, configure-o antes de prosseguir.";
                 }
 
-                $order_details['cliente']['cpf'] = $cliente_details->getData('vat_id');
+                $order_details['cliente']['cpf'] = $cpf_cnpj;
                 $order_details['cliente']['nome_completo'] = $cliente_details->getFirstname().' '.$cliente_details->getLastname();
 
             }

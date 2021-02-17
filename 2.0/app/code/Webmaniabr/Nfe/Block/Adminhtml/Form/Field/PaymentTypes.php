@@ -52,6 +52,10 @@ class PaymentTypes extends \Magento\Framework\View\Element\Html\Select
         $this->addOption("13", addSlashes('Vale Combustível'));
         $this->addOption("14", addSlashes('Duplicata Mercantil'));
         $this->addOption("15", addSlashes('Boleto Bancário'));
+        $this->addOption("16", addSlashes('Depósito Bancário'));
+        $this->addOption("17", addSlashes('Pagamento Instantâneo (PIX)'));
+        $this->addOption("18", addSlashes('Transferência bancária, Carteira Digital'));
+        $this->addOption("19", addSlashes('Programa de fidelidade, Cashback, Crédito Virtual'));
         $this->addOption("90", addSlashes('Sem Pagamento'));
         $this->addOption("99", addSlashes('Outros'));
         

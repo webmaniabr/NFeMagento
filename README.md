@@ -6,7 +6,7 @@
 
 Através do emissor de Nota Fiscal da WebmaniaBR®, você conta com a emissão e arquivamento das suas notas fiscais, cálculo automático de impostos, geração do Danfe para impressão e envio automático de e-mails para os clientes.
 
-- **Módulo compatível com as versões 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3 e 2.4**
+- **Módulo compatível com as versões 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3 e 2.4.**
 - **Faça download da última versão do módulo: [Clique aqui](https://github.com/webmaniabr/NFeMagento/releases)**
 - Emissor de Nota Fiscal WebmaniaBR®: [Saiba mais](https://webmaniabr.com/nota-fiscal-eletronica/)
 - Documentação REST API: [Visualizar](https://webmaniabr.com/docs/rest-api-nfe/)

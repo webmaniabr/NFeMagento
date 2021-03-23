@@ -448,7 +448,7 @@ class NfeData
                 }
 
                 // Set the new cache
-                $this->nfeData->set_cache_certificado_a1($this->certificado->expiration);
+                $this->set_cache_certificado_a1($this->certificado->expiration);
 
                 // Return the expiration
                 $cache_certificado = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_access_token_configs/certificadoa1', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);

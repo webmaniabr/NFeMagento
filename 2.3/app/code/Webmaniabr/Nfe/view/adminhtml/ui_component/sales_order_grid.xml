@@ -11,9 +11,36 @@
                     </item>
                 </argument>
             </action>
+            <action name="imprimir_danfe">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">mass_imprimir_danfe</item>
+                        <item name="label" xsi:type="string" translate="true">Imprimir Danfe</item>
+                        <item name="url" xsi:type="url" path="webmaniabrnfe/order/imprimirdanfe"/>
+                    </item>
+                </argument>
+            </action>
+            <action name="imprimir_danfe_simples">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">mass_imprimir_danfe_simples</item>
+                        <item name="label" xsi:type="string" translate="true">Imprimir Danfe Simples</item>
+                        <item name="url" xsi:type="url" path="webmaniabrnfe/order/imprimirdanfesimples"/>
+                    </item>
+                </argument>
+            </action>
+            <action name="imprimir_danfe_etiqueta">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">mass_imprimir_danfe_etiqueta</item>
+                        <item name="label" xsi:type="string" translate="true">Imprimir Danfe Etiqueta</item>
+                        <item name="url" xsi:type="url" path="webmaniabrnfe/order/imprimirdanfeetiqueta"/>
+                    </item>
+                </argument>
+            </action>
         </massaction>
     </listingToolbar>
-    
+
     <columns name="sales_order_columns">
         <column name="nfe_status" class="Webmaniabr\Nfe\Ui\Component\Listing\Column\StatusNfe">
             <settings>

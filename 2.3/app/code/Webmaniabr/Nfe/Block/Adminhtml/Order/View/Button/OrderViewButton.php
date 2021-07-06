@@ -44,5 +44,6 @@ class OrderViewButton
                 'onclick' => 'window.open("' . $storeManager->getStore()->getBaseUrl() . 'webmaniabrnfe/index/nfeactions/?nfe_btn_emitir=' . $secret_key . '&order_id=' . $order_id . '")'
             ]
         );
+        
     }
 }

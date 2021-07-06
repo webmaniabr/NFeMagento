@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <tab id="webmaniabr" translate="label" sortOrder="10">
-            <label>WebmaniaBR NF-e - v3.1.7.2</label>
+            <label>WebmaniaBR NF-e - v3.2.0.0</label>
         </tab>
         
         <section id="webmaniabr_nfe_configs" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -129,6 +129,27 @@
 
             </group>
 
+            <group id="group_indicativo_intermediador" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Indicativo de intermediador</label>
+                
+                <field id="intermediador" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Intermediador da operação</label>
+                    <comment></comment>
+                     <source_model>Webmaniabr\Nfe\Config\Source\Intermediadoroperacao</source_model>
+                </field>
+
+                <field id="intermediador_cnpj" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>CNPJ do Intermediador</label>
+                    <comment></comment>
+                </field>
+
+                <field id="intermediador_id" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>ID do Intermediador</label>
+                    <comment></comment>
+                </field>
+
+            </group>
+
 
             <group id="group_configuracoes_complementares" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Informações Complementares (Opcional)</label>
@@ -157,6 +178,7 @@
                 
                 <field id="metodos_pagamento" translate="label" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Mapeamento dos Campos</label>
+                    <comment>Obs.: Preencha a descrição de pagamento somente para a forma de pagamento "Outros"</comment>
                     <frontend_model>Webmaniabr\Nfe\Block\Adminhtml\Form\Field\Pagamentos</frontend_model>
                     <backend_model>Webmaniabr\Nfe\Model\Adminhtml\System\Config\Backend\Pagamentos</backend_model>
                 </field>

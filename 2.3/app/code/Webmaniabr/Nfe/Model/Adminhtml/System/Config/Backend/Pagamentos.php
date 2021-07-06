@@ -65,7 +65,8 @@ class Pagamentos extends Value
             }
         
             $result[$aux]['metodo_pagamento'] = $data['metodo_pagamento'];
-            $result[$aux++]['forma_pagamento'] = $data['forma_pagamento'];
+            $result[$aux]['forma_pagamento'] = $data['forma_pagamento'];
+            $result[$aux++]['desc_pagamento'] = $data['desc_pagamento'];
 
         }
         
@@ -108,6 +109,7 @@ class Pagamentos extends Value
     {
         $result = [];
 
+
         foreach ($value as $documentName => $componentCode) {
           
             $id = $this->mathRandom->getUniqueHash('_');
@@ -115,6 +117,7 @@ class Pagamentos extends Value
             $result[$id] = [
                               'metodo_pagamento' => $componentCode["metodo_pagamento"],
                               'forma_pagamento' => $componentCode["forma_pagamento"],
+                              'desc_pagamento' => $componentCode["desc_pagamento"],
                             ];
 
         }

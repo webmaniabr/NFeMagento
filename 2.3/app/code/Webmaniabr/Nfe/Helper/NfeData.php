@@ -896,6 +896,7 @@ class NfeData
             foreach ( $metodos_pagamento as $metodo ) {
                 if ( $metodo["metodo_pagamento"] == $methodCode ) {
                     $metodo_codigo = $metodo["forma_pagamento"];
+                    $metodo_descricao = $metodo["desc_pagamento"];
                     break;
                 }
             }
@@ -905,14 +906,25 @@ class NfeData
                 // Return Error: THERE'S NOT A PAYMENT METHOD MAPED FOR THE ITEM
                 return "Não existe método de pagamento mapeado para o método <b>". $methodTitle ."</b> no pedido #". $order_id .", por favor, configure-o antes de prosseguir.";
             }
+            // Payment desc is required for method 99 - Outros
+            if ($metodo_codigo == 99 && !$metodo_descricao) {
+                return "Não existe descrição de pagamento mapeado para o método <b>". $methodTitle ."</b> no pedido #". $order_id .". A descrição de pagamento é obrigatória para a forma de pagamento Outros, por favor, configure-a antes de prosseguir.";
+            }
             
             $order_details["pedido"]["pagamento"] = 0;
             $order_details["pedido"]["forma_pagamento"] = $metodo_codigo;
+            $order_details["pedido"]["desc_pagamento"] = ($metodo_codigo == 99 && $metodo_descricao) ? $metodo_descricao : '';
             $order_details["pedido"]["presenca"] = 2;
             $order_details["pedido"]["modalidade_frete"] = isset($dados_tributo['frete_padrao']) ? $dados_tributo['frete_padrao'] : 0;
             $order_details["pedido"]["frete"] = $shipping_price;
             $order_details["pedido"]["desconto"] = $discount;
             $order_details["pedido"]["total"] = $total_order_price;
+
+            //Intermediador da operacao
+            $inf_intermediador = $this->get_intermediador_operacao();
+            $order_details["pedido"]["intermediador"] = $inf_intermediador["intermediador"];
+            $order_details["pedido"]["cnpj_intermediador"] = $inf_intermediador["intermediador_cnpj"];
+            $order_details["pedido"]["id_intermediador"] = $inf_intermediador["intermediador_id"];
 
             // Get the optionals informations
             $informacoes_complementares = $this->get_informacoes_complementares();
@@ -1225,6 +1237,26 @@ class NfeData
         } else {
             return json_decode($response);
         }
+
+    }
+
+    /* Return Intermediador da operacao saved in Stores -> Configuration -> WebmaniaBR NF-e
+    /*
+    /* return array
+    */
+    public function get_intermediador_operacao() {
+
+        $intermediador = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_indicativo_intermediador/intermediador', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $intermediador_cnpj = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_indicativo_intermediador/intermediador_cnpj', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $intermediador_id = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_indicativo_intermediador/intermediador_id', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        
+        $indicativo_intermediador = array (
+            "intermediador" => $intermediador,
+            "intermediador_cnpj" => $intermediador_cnpj,
+            "intermediador_id" => $intermediador_id,
+        );
+
+        return $indicativo_intermediador;
 
     }
 

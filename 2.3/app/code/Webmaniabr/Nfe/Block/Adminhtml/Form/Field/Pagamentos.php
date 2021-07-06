@@ -45,7 +45,7 @@ class Pagamentos extends \Magento\Config\Block\System\Config\Form\Field\FieldArr
             
             return $this->_groupRenderer1;
             
-        } else {
+        } else if ($type == 'forma') {
             
             $this->_groupRenderer2 = $this->getLayout()->createBlock(
                 'Webmaniabr\Nfe\Block\Adminhtml\Form\Field\PaymentTypes',
@@ -81,6 +81,13 @@ class Pagamentos extends \Magento\Config\Block\System\Config\Form\Field\FieldArr
             ]
         );
 
+         $this->addColumn(
+            'desc_pagamento',
+            [
+                'label' => __('Descrição do pagamento')
+            ]
+        );
+
         $this->_addAfter       = FALSE;
         $this->_addButtonLabel = __('Add');
     }
@@ -93,6 +100,7 @@ class Pagamentos extends \Magento\Config\Block\System\Config\Form\Field\FieldArr
      */
     protected function _prepareArrayRow(\Magento\Framework\DataObject $row)
     {
+
         if ( null !== $row->getData('metodo_pagamento') ) {
             $customAttribute = $row->getData('metodo_pagamento');
             $key = 'option_' . $this->_groupRenderer1->calcOptionHash($customAttribute);

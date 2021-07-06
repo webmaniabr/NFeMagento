@@ -79,6 +79,20 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface{
                                   'URL do DANFE'
                                 )
                             ->addColumn(
+                                  'url_danfe_simples',
+                                  Table::TYPE_TEXT,
+                                  250,
+                                  ['nullbale'=>false],
+                                  'URL do DANFE Simples'
+                                )
+                            ->addColumn(
+                                  'url_danfe_etiqueta',
+                                  Table::TYPE_TEXT,
+                                  250,
+                                  ['nullbale'=>false],
+                                  'URL do DANFE Etiqueta'
+                                )
+                            ->addColumn(
                                   'status',
                                   Table::TYPE_TEXT,
                                   15,

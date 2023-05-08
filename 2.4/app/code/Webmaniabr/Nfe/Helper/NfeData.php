@@ -630,6 +630,77 @@ class NfeData
         return $order_details;
     }
 
+    /**
+     * Get address fields
+     * 
+     * @param $cliente_details
+     * @return array
+     */
+    public function get_address($cliente_details) {
+        if (!$cliente_details) return [];
+
+        $customer = [];
+        $envio_email = $this->get_envio_email();
+
+        // Get VAT from Address
+        $cpf_cnpj = $cliente_details->getData('vat_id');
+
+        // If VAT doesn't exist, get it from Customer
+        if (is_null($cpf_cnpj) || empty($cpf_cnpj)) {
+            $cpf_cnpj = $order->getData('customer_taxvat');
+        }
+
+        // If the field used is Tax VAT
+        $cpf_cnpj = preg_replace("/[^0-9]/", '', $cpf_cnpj);
+        if (strlen($cpf_cnpj) == 14) {
+            $customer['cnpj'] = $cpf_cnpj;
+            $customer['razao_social'] = $cliente_details->getFirstname().' '.$cliente_details->getLastname();
+        } else if (strlen($cpf_cnpj) == 11) {
+            $customer['cpf'] = $cpf_cnpj;
+            $customer['nome_completo'] = $cliente_details->getFirstname().' '.$cliente_details->getLastname();
+        }
+
+        $cliente_details_address = $cliente_details->getStreet();
+        
+        if (count($cliente_details_address) < 3 || is_null($cliente_details->getRegion())) return [];
+
+        // If the module has the normal behavior for address line
+        if ( $this->get_linhas_endereco_enabled() ) {
+            $endereco = $cliente_details_address[0];
+            $numero = $cliente_details_address[1];
+            if ( isset($cliente_details_address[2]) ) {
+                $complemento = $cliente_details_address[2];
+            } else {
+                $complemento = "";
+            }
+            $bairro = $cliente_details_address[3];
+
+        // Else let the user define the order
+        } else {
+            $address_maped = $this->get_linhas_endereco_maped();
+            $endereco = $cliente_details_address[$address_maped["endereco"]];
+            $numero = $cliente_details_address[$address_maped["numero"]];
+            if ( isset($cliente_details_address[$address_maped["complemento"]]) ) {
+                $complemento = $cliente_details_address[$address_maped["complemento"]];
+            } else {
+                $complemento = "";
+            }
+            $bairro = $cliente_details_address[$address_maped["bairro"]];
+        }
+
+        $customer["endereco"] = $endereco;
+        $customer["numero"] = $numero;
+        $customer["complemento"] = $complemento;
+        $customer["bairro"] = $bairro;
+        $customer["cidade"] = $cliente_details->getCity();
+        $customer["uf"] = $cliente_details->getRegion();
+        $customer["cep"] = $cliente_details->getPostcode();
+        $customer["telefone"] = $cliente_details->getTelephone();
+        $customer["email"] = ($envio_email ? $order->getCustomerEmail() : '');
+
+        return $customer;
+    }
+
     /* Return the product informations
     /*
     /* return array
@@ -666,111 +737,22 @@ class NfeData
 
         // ---- Client Details ---- //
 
-            $cliente_details = $order->getShippingAddress();
-
-            // Get VAT from Shipping Address
-            $cpf_cnpj = $cliente_details->getData('vat_id');
-
-            // If Shipping address' VAT doesn't exist, get it from Customer
-            if (is_null($cpf_cnpj) || empty($cpf_cnpj)) {
-
-                $cpf_cnpj = $order->getData('customer_taxvat');
-
+            $billing = $this->get_address($order->getBillingAddress());
+            $shipping = $this->get_address($order->getShippingAddress());
+            
+            if (empty($billing) && empty($shipping)) {
+                return "Os campos de endereço do pedido #". $order_id ." não estão configurados corretamente, por favor, configure-os antes de prosseguir.";
             }
 
-            // If the field used is Tax VAT
-            $cpf_cnpj = str_replace( array('/', '.', '-'), '', $cpf_cnpj);
-
-            if (strlen($cpf_cnpj) == 14) {
-
-                $order_details['cliente']['cnpj'] = $cpf_cnpj;
-                $order_details['cliente']['razao_social'] = $cliente_details->getFirstname().' '.$cliente_details->getLastname();
-                // if ($customerData->getData('inscest')) $data['cliente']['ie'] = $customerData->getData('inscest');
-
-            } else {
-
-                if( is_null($cpf_cnpj) || empty($cpf_cnpj) ) {
-                    // Return Error: IF THE FIELD CPF (VAT_ID) IS NULL
-                    return "O campo de CPF do pedido #". $order_id ." não está configurado corretamente, por favor, configure-o antes de prosseguir.";
-                }
-
-                $order_details['cliente']['cpf'] = $cpf_cnpj;
-                $order_details['cliente']['nome_completo'] = $cliente_details->getFirstname().' '.$cliente_details->getLastname();
-
+            if (empty($billing['cpf']) && empty($billing['cnpj'])) {
+                return "O campo de CPF/CNPJ do pedido #". $order_id ." não está configurado corretamente, por favor, configure-o antes de prosseguir.";
             }
 
-            $cliente_details_address = $cliente_details->getStreet();
-
-            // ---- Address Exceptions ---- //
-
-                // If is not set 3 fields for address, return false and alert the user
-                if( count($cliente_details_address) < 3 ) {
-                    // Return Error: IF THE ADDRESS FIELDS SIZE IS LOWER THAN 3 ('Complemento' is opcional)
-                    return "Os campos de endereço do pedido #". $order_id ." não estão configurados corretamente, por favor, configure-os antes de prosseguir.";
-                }
-
-                // If the state is not definied
-                if( is_null($cliente_details->getRegion()) ) {
-                    // Return Error: IF THE FIELD STATE ISN'T VALID
-                    return "O campo de estado do pedido #". $order_id ." não está configurado corretamente, por favor, configure-os antes de prosseguir";
-                }
-
-            // **** Address Exceptions **** //
-
-            // If the module has the normal behavior for address line
-            if ( $this->get_linhas_endereco_enabled() ) {
-
-                $endereco = $cliente_details_address[0];
-                $numero = $cliente_details_address[1];
-
-                if ( isset($cliente_details_address[2]) ) {
-                    $complemento = $cliente_details_address[2];
-                } else {
-                    $complemento = "";
-                }
-                
-                if ( !isset($cliente_details_address[3]) ) {
-                    return "O campo de bairro do pedido #". $order_id ." não está configurado corretamente, por favor, configure-os antes de prosseguir";
-                } else {
-                    $bairro = $cliente_details_address[3];
-                }
-                
-
-            // Else let the user define the order
-            } else {
-
-                $address_maped = $this->get_linhas_endereco_maped();
-
-                $endereco = $cliente_details_address[$address_maped["endereco"]];
-                $numero = $cliente_details_address[$address_maped["numero"]];
-
-                if ( isset($cliente_details_address[$address_maped["complemento"]]) ) {
-                    $complemento = $cliente_details_address[$address_maped["complemento"]];
-                } else {
-                    $complemento = "";
-                }
-                
-                if ( !isset($cliente_details_address[$address_maped["bairro"]]) ) {
-                    return "O campo de bairro do pedido #". $order_id ." não está configurado corretamente, por favor, configure-os antes de prosseguir";
-                } else {
-                    $bairro = $cliente_details_address[$address_maped["bairro"]];
-                }
-
+            $order_details['cliente'] = $billing;
+            if ($billing !== $shipping) {
+                $order_details['transporte']['entrega'] = $shipping;
             }
-
-            $envio_email = $this->get_envio_email();
-
-            $order_details["cliente"]["endereco"] = $endereco;
-            $order_details["cliente"]["numero"] = $numero;
-            $order_details["cliente"]["complemento"] = $complemento;
-            $order_details["cliente"]["bairro"] = $bairro;
-            $order_details["cliente"]["cidade"] = $cliente_details->getCity();
-            $order_details["cliente"]["uf"] = $this->getTheUf($cliente_details->getRegion());
-            $order_details["cliente"]["uf"] = $cliente_details->getRegion();
-            $order_details["cliente"]["cep"] = $cliente_details->getPostcode();
-            $order_details["cliente"]["telefone"] = $cliente_details->getTelephone();
-            $order_details["cliente"]["email"] = ($envio_email ? $order->getCustomerEmail() : '');
-
+            
         // **** Client Details **** //
 
         // ---- Products Details ---- //

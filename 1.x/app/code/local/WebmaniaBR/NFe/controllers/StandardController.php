@@ -195,4 +195,31 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
 
   }
 
+  public function imprimirDanfeAction() {
+
+    $orders = $_POST['order_ids'];
+
+    $notafiscal = new WebmaniaBR_NFe_Model_Observer;
+    $notafiscal->imprimirDanfe($orders, 'danfe');
+
+  }
+
+  public function imprimirDanfeSimplesAction() {
+
+    $orders = $_POST['order_ids'];
+
+    $notafiscal = new WebmaniaBR_NFe_Model_Observer;
+    $notafiscal->imprimirDanfe($orders, 'danfe_simples');
+
+  }
+
+  public function imprimirDanfeEtiquetaAction() {
+
+    $orders = $_POST['order_ids'];
+
+    $notafiscal = new WebmaniaBR_NFe_Model_Observer;
+    $notafiscal->imprimirDanfe($orders, 'danfe_etiqueta');
+
+  }
+
 }

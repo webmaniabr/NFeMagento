@@ -141,6 +141,31 @@
                           <show_in_website>1</show_in_website>
                           <show_in_store>1</show_in_store>
                       </origem_produto>
+                      <intermediador>
+                          <label>Intermediador da operação</label>
+                          <frontend_type>select</frontend_type>
+                          <source_model>nfe/OptionsIntermediador</source_model>
+                          <sort_order>7</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                          <show_in_store>1</show_in_store>
+                      </intermediador>
+                      <cnpj_intermediador>
+                          <label>CNPJ Intermediador</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>8</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                          <show_in_store>1</show_in_store>
+                      </cnpj_intermediador>
+                      <id_intermediador>
+                          <label>ID Intermediador</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>9</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                          <show_in_store>1</show_in_store>
+                      </id_intermediador>
                     </fields>
                 </section_two>
                 <section_three translate="label">

@@ -30,6 +30,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
     $envio_email = Mage::getStoreConfig('nfe/section_two/envio_email', Mage::app()->getStore());
     $customer_id = $order->getCustomerId();
     $customerData = Mage::getModel('customer/customer')->load($customer_id);
+    $intermediador = Mage::getStoreConfig('nfe/section_two/intermediador', Mage::app()->getStore());
 
     if(!$envio_email || $envio_email == '1') $envio_email = 'on';
 
@@ -85,6 +86,13 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
           'total' => number_format($order->getGrandTotal(), 2, '.', '')
         ),
       );
+
+      //Intermediador da operação
+      if ($intermediador) {
+        $data['pedido']['intermediador'] = $intermediador;
+        $data['pedido']['cnpj_intermediador'] = Mage::getStoreConfig('nfe/section_two/cnpj_intermediador', Mage::app()->getStore());
+        $data['pedido']['id_intermediador'] = Mage::getStoreConfig('nfe/section_two/id_intermediador', Mage::app()->getStore());
+      }
       
       $shipping_method = Mage::getStoreConfig('nfe/section_four/frete_padrao', Mage::app()->getStore());
       if(isset($shipping_address) && $shipping_method >= 0) {
@@ -524,7 +532,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
   public function listenNotification(){
 
-   if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['retorno_nfe']) && $_GET['order_id']){
+    if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['retorno_nfe']) && $_GET['order_id']){
 
 
       $order_id = (int) $_GET['order_id'];
@@ -559,6 +567,71 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
     }
 
-}
+  }
+
+  public function imprimirDanfe($orders, $type) {
+
+    require_once(dirname(__FILE__) . '/../inc/pdf/PDFMerger.php');
+
+    //Create folder if it doesn't exist
+    $path = Mage::getBaseDir('media') . '/pdf_files';
+    if (!file_exists($path)) mkdir($path);
+
+    $pdf = new PDFMerger();
+
+    $count = 0;
+    foreach ($orders as $order_id) {
+
+      //Get order's nfe info
+      $order = Mage::getModel('sales/order')->load($order_id);
+      $order_nfe_info = unserialize(base64_decode($order->getData('all_nfe')));
+
+      if ($order_nfe_info) {
+
+        $info = $order_nfe_info[0];
+        
+        //Define danfe url
+        $url = $info['url_danfe'];
+        if ($type == 'danfe_simples') {
+          $url = str_replace('/danfe/', '/danfe/simples/', $url);
+        }
+        else if ($type == 'danfe_etiqueta') {
+          $url = str_replace('/danfe/', '/danfe/etiqueta/', $url);
+        }
+
+        //Add to pdf merger
+        $path_file = "{$path}/{$info['chave']}.pdf";
+        file_put_contents($path_file, file_get_contents($url));
+
+			  if (file_exists($path_file)) {
+          $pdf->addPDF($path_file, 'all');
+          $count++;
+        }
+
+      }
+
+    }
+
+    //Create pdf with all order's danfe
+    if ($count > 0) {
+
+      $filename = time()."-".random_int(1, 10000000000);
+		  $result = $pdf->merge('file', "{$path}/{$filename}.pdf");
+      $link_pdf = Mage::getBaseUrl('media') . "pdf_files/{$filename}.pdf";
+      Mage::getSingleton('core/session')->addSuccess("Arquivo de impressão gerado com sucesso. <a href='$link_pdf' target='_blank'>Clique aqui</a> para acessá-lo.");
+
+    }
+    else {
+
+      Mage::getSingleton('core/session')->addError("O pedido não possui nota fiscal.");
+
+    }
+
+    //Redirect
+    session_write_close();
+    $redirect_url = Mage::helper('adminhtml')->getUrl('adminhtml/sales_order/');
+    Mage::app()->getResponse()->setRedirect($redirect_url);
+
+  }
 
 }

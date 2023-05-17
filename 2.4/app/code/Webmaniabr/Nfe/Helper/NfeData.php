@@ -636,7 +636,7 @@ class NfeData
      * @param $cliente_details
      * @return array
      */
-    public function get_address($cliente_details) {
+    public function get_address($cliente_details, $order) {
         if (!$cliente_details) return [];
 
         $customer = [];
@@ -737,8 +737,8 @@ class NfeData
 
         // ---- Client Details ---- //
 
-            $billing = $this->get_address($order->getBillingAddress());
-            $shipping = $this->get_address($order->getShippingAddress());
+            $billing = $this->get_address($order->getBillingAddress(), $order);
+            $shipping = $this->get_address($order->getShippingAddress(), $order);
             
             if (empty($billing) && empty($shipping)) {
                 return "Os campos de endereço do pedido #". $order_id ." não estão configurados corretamente, por favor, configure-os antes de prosseguir.";

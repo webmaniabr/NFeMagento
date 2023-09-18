@@ -34,6 +34,7 @@ class OrderViewButton
         }
         
         $secret_key = $this->nfeData->manage_secret_key($order_id, "nfe_btn_emitir");
+        $url = $subject->getUrl('webmaniabrnfe/order/issuenfe');
         
         $subject->addButton(
             'order_custom_button',
@@ -41,7 +42,7 @@ class OrderViewButton
                 'label' => __('Emitir NF-e'),
                 'class' => __('webmaniabr-emitir-nfe'),
                 'id' => 'order-view-webmaniabr-nfe',
-                'onclick' => 'window.open("' . $storeManager->getStore()->getBaseUrl() . 'webmaniabrnfe/index/nfeactions/?nfe_btn_emitir=' . $secret_key . '&order_id=' . $order_id . '")'
+                'onclick' => "setLocation('{$url}')"
             ]
         );
     }

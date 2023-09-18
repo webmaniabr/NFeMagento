@@ -660,6 +660,15 @@ class NfeData
             $customer['nome_completo'] = $cliente_details->getFirstname().' '.$cliente_details->getLastname();
         }
 
+        // I.E.
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $customerModel = $objectManager->create('Magento\Customer\Api\CustomerRepositoryInterface')->getById($order->getCustomerId());
+        $ieAttribute = $customerModel->getCustomAttribute('customer_ie');
+        if ($ieAttribute) {
+            $ieValue = $ieAttribute->getValue();
+            if (!empty($ieValue)) $customer['ie'] = $ieValue;
+        }
+
         $cliente_details_address = $cliente_details->getStreet();
         
         if (count($cliente_details_address) < 3 || is_null($cliente_details->getRegion())) return [];

@@ -18,6 +18,10 @@ class Pagamentos extends \Magento\Config\Block\System\Config\Form\Field\FieldArr
      * @var Customergroup
      */
     protected $_groupRenderer;
+
+    protected $_groupRenderer1;
+
+    protected $_groupRenderer2;
     
     /**
      * Construct

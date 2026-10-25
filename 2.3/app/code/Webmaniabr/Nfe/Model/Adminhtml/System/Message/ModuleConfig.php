@@ -15,6 +15,8 @@ class ModuleConfig implements MessageInterface
   
   protected $nfeData;
   
+  protected $tributos;
+  
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         NfeData $nfeData

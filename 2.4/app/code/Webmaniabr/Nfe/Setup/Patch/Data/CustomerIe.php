@@ -129,7 +129,8 @@ class CustomerIe implements DataPatchInterface
             // Save attribute using its resource model
             $this->attributeResource->save($attribute);
         } catch (Exception $e) {
-            $this->logger->err($e->getMessage());
+            $this->logger->error($e->getMessage());
+            throw $e;
         }
 
         // End setup

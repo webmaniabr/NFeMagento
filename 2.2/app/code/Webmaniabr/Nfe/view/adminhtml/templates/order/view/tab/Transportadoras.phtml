@@ -33,91 +33,33 @@
     // Get object manager to retrieve url
     $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
     $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
+    $nfeData = $objectManager->get('Webmaniabr\Nfe\Helper\NfeData');
     
-    // Retrieve the order id
-    $its_id = false;
-    $order_id = "";
-    $actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    // Retrieve the order id from the admin route parameter (the tab URL keeps the current order_id)
+    $order_id = (int) $block->getRequest()->getParam('order_id');
+    $transportadora_info = null;
+    $secret_key = '';
     
-    foreach ( explode("/", $actual_link) as $url_exploded ) {
+    if ( $order_id > 0 ) {
         
-        if ( $its_id ) {
-            $order_id = $url_exploded;
-            break;
-        }
+        // Saved shipping data, read with the integer order id
+        $transportadora_info = $nfeData->get_transportadoras_info($order_id);
         
-        if ( $url_exploded == "order_id" ) {
-            $its_id = true;
-        }
+        // Register secret key to verification (bound inserts; expired keys are removed by the helper)
+        $secret_key = $nfeData->manage_secret_key($order_id, 'nfe_ajax');
         
     }
     
-    // Create an object to SQL use
-    $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
-    $connection = $resource->getConnection();
-    $tableName = $resource->getTableName('webmaniabrnfe_orders_transportadora');
-    
-    $sql = "SELECT * FROM " . $tableName . " WHERE order_id='" . $order_id . "'";
-    
-    $connection->query($sql);
-    
-    $result = $connection->fetchAll($sql);
-    
-    // Check if $result is not empty to avoid crash code
-    if( empty($result) ) {
-        
-        $transportadora_info = null;
-        
-    } else {
-
-        $transportadora_info["utilizar_transportadora"] = $result[0]["utilizar_transportadora"];
-        $transportadora_info["volume"] = $result[0]["volume"];
-        $transportadora_info["especie"] = $result[0]["especie"];
-        $transportadora_info["peso_bruto"] = $result[0]["peso_bruto"];
-        $transportadora_info["peso_liquido"] = $result[0]["peso_liquido"];
-        
-    }
-    
-    if ( $order_id ) {
-        
-        // Register secret key to verification
-        $tableName = $resource->getTableName('webmaniabrnfe_secret_keys');
-        
-        // Get the actual date
-        $date = date('Y-m-d H:i:s');
-
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $characters_length = strlen($characters);
-        $random_key = '';
-        
-        for ($i = 0; $i <= 10; $i++) {
-            $random_key .= $characters[rand(0, $characters_length - 1)];
-        }
-        
-        $secret_key = $order_id . "_" . $random_key;
-        
-        // Store the new key for secure request
-        $sql = "INSERT INTO " . $tableName . " ( secret_type, secret_key, requested_at )
-                VALUES ( 'nfe_ajax', '" . $secret_key . "', '" . $date . "' )";
-        
-        // Delete older keys        
-        $delete_date = date("Y-m-d H:i:s", strtotime('-24 hours', time()));
-        
-        $delete_sql = "DELETE FROM " . $tableName . "
-                WHERE secret_type='nfe_ajax' AND requested_at <= '$delete_date'";
-                
-        $connection->query($sql);
-        
-        $connection->query($delete_sql);
-        
-    }
+    $wmbr_escape = function ($value) {
+        return htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
+    };
 
 ?>
 
 <section id="section_transportadoras" class="admin__page-section custom-tab-content"
-         data-url="<?php echo $storeManager->getStore()->getBaseUrl(); ?>"
-         data-id="<?php echo $order_id; ?>"
-         data-key="<?php echo $secret_key; ?>"
+         data-url="<?php echo $wmbr_escape($storeManager->getStore()->getBaseUrl()); ?>"
+         data-id="<?php echo (int) $order_id; ?>"
+         data-key="<?php echo $wmbr_escape($secret_key); ?>"
         >
 
     <div class="edit-transportadoras-title">Configurações para Transportadora</div>
@@ -129,22 +71,22 @@
 
     <div class="input_nfe">
         <label class="label_transportadoras" for="nfe_volume">Volume</label>
-        <input id="nfe_volume" class="input_transportadoras" type="text" name="nfe_volume" value="<?php if ( isset($transportadora_info) ) { echo $transportadora_info['volume']; } ?>" />
+        <input id="nfe_volume" class="input_transportadoras" type="text" name="nfe_volume" value="<?php if ( isset($transportadora_info) ) { echo $wmbr_escape($transportadora_info['volume']); } ?>" />
     </div>
     
     <div class="input_nfe">
         <label class="label_transportadoras" for="nfe_especie">Espécie</label>
-        <input id="nfe_especie" class="input_transportadoras" type="text" name="nfe_especie" value="<?php if ( isset($transportadora_info) ) { echo $transportadora_info['especie']; } ?>" />
+        <input id="nfe_especie" class="input_transportadoras" type="text" name="nfe_especie" value="<?php if ( isset($transportadora_info) ) { echo $wmbr_escape($transportadora_info['especie']); } ?>" />
     </div>
     
     <div class="input_nfe">
         <label class="label_transportadoras" for="nfe_peso_bruto">Peso Bruto</label>
-        <input id="nfe_peso_bruto" class="input_transportadoras" type="text" name="nfe_peso_bruto" value="<?php if ( isset($transportadora_info) ) { echo $transportadora_info['peso_bruto']; } ?>" />
+        <input id="nfe_peso_bruto" class="input_transportadoras" type="text" name="nfe_peso_bruto" value="<?php if ( isset($transportadora_info) ) { echo $wmbr_escape($transportadora_info['peso_bruto']); } ?>" />
     </div>
     
     <div class="input_nfe">
         <label class="label_transportadoras" for="nfe_peso_liquido">Peso Líquido</label>
-        <input id="nfe_peso_liquido" class="input_transportadoras" type="text" name="nfe_peso_liquido" value="<?php if ( isset($transportadora_info) ) { echo $transportadora_info['peso_liquido']; } ?>" />
+        <input id="nfe_peso_liquido" class="input_transportadoras" type="text" name="nfe_peso_liquido" value="<?php if ( isset($transportadora_info) ) { echo $wmbr_escape($transportadora_info['peso_liquido']); } ?>" />
     </div>
     
     <button id="submit_transportadoras_nfe" onClick="send_data_transportadoras()">Salvar Dados</button>
@@ -205,7 +147,7 @@
         var order_id = document.getElementById("section_transportadoras").dataset.id;
         var key = document.getElementById("section_transportadoras").dataset.key;
         
-        var parms = "action=updatetransportadora&key=" + key + "&utilizar_transportadora=" + utilizar + "&order_id=" + order_id + "&volume=" + volume + "&especie=" + especie + "&peso_bruto=" + peso_bruto + "&peso_liquido=" + peso_liquido;
+        var parms = "action=updatetransportadora&key=" + encodeURIComponent(key) + "&utilizar_transportadora=" + encodeURIComponent(utilizar) + "&order_id=" + encodeURIComponent(order_id) + "&volume=" + encodeURIComponent(volume) + "&especie=" + encodeURIComponent(especie) + "&peso_bruto=" + encodeURIComponent(peso_bruto) + "&peso_liquido=" + encodeURIComponent(peso_liquido);
         
         xhttp = new XMLHttpRequest();
         
@@ -216,7 +158,7 @@
         xhttp.onreadystatechange = function() {
             
             if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("response_transportadoras_nfe").innerHTML = this.responseText;
+                document.getElementById("response_transportadoras_nfe").textContent = this.responseText;
                 document.getElementById("submit_transportadoras_nfe").disabled = false;
             } else {
                 document.getElementById("response_transportadoras_nfe").innerHTML = "Houve uma falha na comunicação, tente novamente ou contate o suporte técnico.";

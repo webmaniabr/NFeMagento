@@ -1,0 +1,56 @@
+{
+    "webmaniabrnfe_orders_nfe": {
+        "column": {
+            "id_webmaniabrnfe_orders_nfe": true,
+            "order_id": true,
+            "uuid": true,
+            "chave_acesso": true,
+            "n_recibo": true,
+            "n_nfe": true,
+            "n_serie": true,
+            "url_xml": true,
+            "url_danfe": true,
+            "status": true,
+            "requested_at": true
+        },
+        "index": {
+            "WEBMANIABRNFE_ORDERS_NFE_ORDER_ID": true,
+            "WEBMANIABRNFE_ORDERS_NFE_STATUS": true,
+            "WEBMANIABRNFE_ORDERS_NFE_UUID": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "webmaniabrnfe_orders_transportadora": {
+        "column": {
+            "id_webmaniabrnfe_orders_transportadora": true,
+            "order_id": true,
+            "utilizar_transportadora": true,
+            "volume": true,
+            "especie": true,
+            "peso_bruto": true,
+            "peso_liquido": true
+        },
+        "index": {
+            "WEBMANIABRNFE_ORDERS_TRANSPORTADORA_ORDER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "webmaniabrnfe_secret_keys": {
+        "column": {
+            "id_webmaniabrnfe_secret_keys": true,
+            "secret_type": true,
+            "secret_key": true,
+            "requested_at": true
+        },
+        "index": {
+            "WEBMANIABRNFE_SECRET_KEYS_SECRET_TYPE": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}

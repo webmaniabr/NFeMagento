@@ -18,6 +18,8 @@ class EmitirNfe extends \Magento\Sales\Controller\Adminhtml\Order\AbstractMassAc
     
     protected $nfeData;
 
+    protected $authSession;
+
     public function __construct(
         Context $context,
         Filter $filter,
@@ -59,6 +61,14 @@ class EmitirNfe extends \Magento\Sales\Controller\Adminhtml\Order\AbstractMassAc
                 // Store the success message
                 $response_error .= "O pedido possui um erro em seu identificador.";
                 
+                continue;
+            }
+
+            // Respect the "NF-e duplicada" option, as the single-order emission does
+            $nfe_status = $this->nfeData->get_status_order_by_id($order_id);
+            if ( $this->nfeData->is_active_nfe_status($nfe_status) && !$nfe_duplicada ) {
+                if( $print_br_nfe_duplicada ) { $response_nfe_duplicada .= "<br>"; } else { $print_br_nfe_duplicada = true; }
+                $response_nfe_duplicada .= "Já existe uma nota fiscal emitida para o pedido #" . $order_id . ".";
                 continue;
             }
 
@@ -126,6 +136,10 @@ class EmitirNfe extends \Magento\Sales\Controller\Adminhtml\Order\AbstractMassAc
             
             if( $response_error_nfe ) {
                 $this->messageManager->addError($response_error_nfe);
+            }
+            
+            if( $response_nfe_duplicada ) {
+                $this->messageManager->addNotice($response_nfe_duplicada);
             }
             
         // **** ERRORS **** //

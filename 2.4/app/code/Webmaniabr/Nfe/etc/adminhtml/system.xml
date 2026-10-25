@@ -9,7 +9,7 @@
             <class>separator-top</class>
             <label>Configurações Gerais</label>
             <tab>webmaniabr</tab>
-            <resource>Webmaniabr_Nfe::webmaniabr_nfe_configs</resource>
+            <resource>Webmaniabr_Nfe::module_config</resource>
             
             <group id="group_access_token_configs" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                 
@@ -21,22 +21,26 @@
                      <source_model>Webmaniabr\Nfe\Config\Source\Offon</source_model>
                </field>
                 
-                <field id="consumer_key" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="consumer_key" translate="label" type="password" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <backend_model>Webmaniabr\Nfe\Model\Adminhtml\System\Config\Backend\Credential</backend_model>
                     <label>Consumer Key</label>
                     <comment>Chave de acesso fornecida na aquisição da assinatura.</comment>
                 </field>
                 
-                <field id="consumer_secret" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="consumer_secret" translate="label" type="password" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <backend_model>Webmaniabr\Nfe\Model\Adminhtml\System\Config\Backend\Credential</backend_model>
                     <label>Consumer Secret</label>
                     <comment>Chave de acesso fornecida na aquisição da assinatura.</comment>
                 </field>
                 
-                <field id="access_token" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="access_token" translate="label" type="password" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <backend_model>Webmaniabr\Nfe\Model\Adminhtml\System\Config\Backend\Credential</backend_model>
                     <label>Access Token</label>
                     <comment>Token de acesso fornecido na aquisição da assinatura.</comment>
                 </field>
                 
-                <field id="access_token_secret" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="access_token_secret" translate="label" type="password" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <backend_model>Webmaniabr\Nfe\Model\Adminhtml\System\Config\Backend\Credential</backend_model>
                     <label>Access Token Secret</label>
                     <comment>Token de acesso fornecido na aquisição da assinatura.</comment>
                 </field>

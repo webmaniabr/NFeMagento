@@ -7,7 +7,7 @@
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
                         <resource id="Magento_Config::config">
-                            <resource id="Webmaniabr_Nfe::module_config" title="Ldap" sortOrder="10" />
+                            <resource id="Webmaniabr_Nfe::module_config" title="Webmania NF-e" sortOrder="10" />
                         </resource>
                     </resource>
                 </resource>

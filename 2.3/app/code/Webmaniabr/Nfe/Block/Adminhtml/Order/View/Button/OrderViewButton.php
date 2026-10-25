@@ -6,6 +6,10 @@ use Webmaniabr\Nfe\Helper\NfeData;
 
 class OrderViewButton
 {
+    protected $nfeData;
+
+    protected $_objectManager;
+
     public function __construct (NfeData $nfeData) {
       $this->nfeData = $nfeData;
     }
@@ -33,6 +37,9 @@ class OrderViewButton
             
         }
         
+        // Order ids are integers; never reuse other URI text in SQL or in the button markup
+        $order_id = (int) $order_id;
+
         $secret_key = $this->nfeData->manage_secret_key($order_id, "nfe_btn_emitir");
         
         $subject->addButton(

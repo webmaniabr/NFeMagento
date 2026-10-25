@@ -13,6 +13,10 @@ class PaymentMethods extends \Magento\Framework\View\Element\Html\Select
      */
     private $_paymentgMethods;
 
+    protected $allPaymentMethods;
+
+    protected $_paymentMethods;
+
     /**
      * Construct
      *

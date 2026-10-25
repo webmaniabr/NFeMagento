@@ -15,6 +15,10 @@ class Tokens implements MessageInterface
   
   protected $nfeData;
   
+  protected $is_empty;
+  
+  protected $tokens;
+  
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         NfeData $nfeData

@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    
+    <!-- NFe Orders table -->
+    <table name="webmaniabrnfe_orders_nfe" resource="default" engine="innodb" comment="WebmaniaBR NFe Orders">
+        <column xsi:type="int" name="id_webmaniabrnfe_orders_nfe" unsigned="true" nullable="false" 
+                identity="true" comment="NFe Order ID"/>
+        <column xsi:type="int" name="order_id" unsigned="true" nullable="false" comment="Magento Order ID"/>
+        <column xsi:type="varchar" name="uuid" length="100" nullable="false" comment="WebmaniaBR UUID"/>
+        <column xsi:type="varchar" name="chave_acesso" length="50" nullable="false" comment="NFe Access Key"/>
+        <column xsi:type="varchar" name="n_recibo" length="50" nullable="true" comment="Receipt Number"/>
+        <column xsi:type="varchar" name="n_nfe" length="20" nullable="false" comment="NFe Number"/>
+        <column xsi:type="varchar" name="n_serie" length="10" nullable="false" comment="NFe Series"/>
+        <column xsi:type="text" name="url_xml" nullable="false" comment="XML URL"/>
+        <column xsi:type="text" name="url_danfe" nullable="false" comment="DANFE URL"/>
+        <column xsi:type="varchar" name="status" length="15" nullable="false" comment="NFe Status"/>
+        <column xsi:type="timestamp" name="requested_at" nullable="false" default="CURRENT_TIMESTAMP" 
+                comment="Created At"/>
+        
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id_webmaniabrnfe_orders_nfe"/>
+        </constraint>
+        
+        <index referenceId="WEBMANIABRNFE_ORDERS_NFE_ORDER_ID" indexType="btree">
+            <column name="order_id"/>
+        </index>
+        <index referenceId="WEBMANIABRNFE_ORDERS_NFE_STATUS" indexType="btree">
+            <column name="status"/>
+        </index>
+        <index referenceId="WEBMANIABRNFE_ORDERS_NFE_UUID" indexType="btree">
+            <column name="uuid"/>
+        </index>
+    </table>
+
+    <!-- Transportadora table -->
+    <table name="webmaniabrnfe_orders_transportadora" resource="default" engine="innodb" 
+           comment="WebmaniaBR NFe Carriers">
+        <column xsi:type="int" name="id_webmaniabrnfe_orders_transportadora" unsigned="true" nullable="false" 
+                identity="true" comment="Transportadora ID"/>
+        <column xsi:type="int" name="order_id" unsigned="true" nullable="false" comment="Magento Order ID"/>
+        <column xsi:type="boolean" name="utilizar_transportadora" nullable="false" default="false" 
+                comment="Use Carrier"/>
+        <column xsi:type="varchar" name="volume" length="10" nullable="true" comment="Volume"/>
+        <column xsi:type="varchar" name="especie" length="15" nullable="true" comment="Species"/>
+        <column xsi:type="decimal" name="peso_bruto" scale="4" precision="10" nullable="true" 
+                comment="Gross Weight"/>
+        <column xsi:type="decimal" name="peso_liquido" scale="4" precision="10" nullable="true" 
+                comment="Net Weight"/>
+        
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id_webmaniabrnfe_orders_transportadora"/>
+        </constraint>
+        
+        <index referenceId="WEBMANIABRNFE_ORDERS_TRANSPORTADORA_ORDER_ID" indexType="btree">
+            <column name="order_id"/>
+        </index>
+    </table>
+
+    <!-- Secret Keys table -->
+    <table name="webmaniabrnfe_secret_keys" resource="default" engine="innodb" 
+           comment="WebmaniaBR NFe Secret Keys">
+        <column xsi:type="int" name="id_webmaniabrnfe_secret_keys" unsigned="true" nullable="false" 
+                identity="true" comment="Secret Keys ID"/>
+        <column xsi:type="varchar" name="secret_type" length="15" nullable="false" comment="Secret Type"/>
+        <column xsi:type="varchar" name="secret_key" length="255" nullable="false" comment="Secret Key Value"/>
+        <column xsi:type="timestamp" name="requested_at" nullable="false" default="CURRENT_TIMESTAMP" 
+                comment="Created At"/>
+        
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id_webmaniabrnfe_secret_keys"/>
+        </constraint>
+        
+        <index referenceId="WEBMANIABRNFE_SECRET_KEYS_SECRET_TYPE" indexType="btree">
+            <column name="secret_type"/>
+        </index>
+    </table>
+
+</schema>

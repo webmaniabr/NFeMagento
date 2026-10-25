@@ -28,6 +28,8 @@
       }else{
         $transporte_info = json_decode($transporte_info, true);
       }
+      if(!is_array($transporte_info)) $transporte_info = array();
+      $transporte_info += array('volume' => '', 'especie' => '', 'peso_bruto' => '', 'peso_liquido' => '', 'modalidade_frete' => '');
       ?>
 
 <div class="entry-edit" id="nfe-transporte-info">
@@ -58,19 +60,19 @@
       </span>
       <span class="field-row">
         <label class="normal">Volume</label>
-        <input type="text" class="input-text" name="nfe_transporte_volume" value="<?php echo $transporte_info['volume']; ?>"/>
+        <input type="text" class="input-text" name="nfe_transporte_volume" value="<?php echo $this->escapeHtml($transporte_info['volume']); ?>"/>
       </span>
       <span class="field-row">
         <label class="normal">Espécie</label>
-        <input type="text" class="input-text" name="nfe_transporte_especie" value="<?php echo $transporte_info['especie']; ?>"/>
+        <input type="text" class="input-text" name="nfe_transporte_especie" value="<?php echo $this->escapeHtml($transporte_info['especie']); ?>"/>
       </span>
       <span class="field-row">
         <label class="normal">Peso Bruto</label>
-        <input type="text" class="input-text" name="nfe_transporte_peso_bruto" value="<?php echo $transporte_info['peso_bruto']; ?>" placeholder="Ex: 50.210 = 50,210KG" />
+        <input type="text" class="input-text" name="nfe_transporte_peso_bruto" value="<?php echo $this->escapeHtml($transporte_info['peso_bruto']); ?>" placeholder="Ex: 50.210 = 50,210KG" />
       </span>
       <span class="field-row">
         <label class="normal">Peso Líquido</label>
-        <input type="text" class="input-text" name="nfe_transporte_peso_liquido" value="<?php echo $transporte_info['peso_liquido']; ?>" placeholder="Ex: 50.210 = 50,210KG" />
+        <input type="text" class="input-text" name="nfe_transporte_peso_liquido" value="<?php echo $this->escapeHtml($transporte_info['peso_liquido']); ?>" placeholder="Ex: 50.210 = 50,210KG" />
       </span>
       <input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
       <input type="submit" value="Salvar" class="save-transporte-info"/>

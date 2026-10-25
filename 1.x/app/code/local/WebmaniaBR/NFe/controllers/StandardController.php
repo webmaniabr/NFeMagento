@@ -1,7 +1,12 @@
 <?php
+require_once dirname(__FILE__) . '/../inc/Security.php';
 
 class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
 {
+
+  protected function _isAllowed() {
+    return Mage::getSingleton('admin/session')->isAllowed('sales/order');
+  }
 
   public function get_referer_url() {
 
@@ -26,8 +31,12 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
   }
 
   public function updateTransporteAction(){
+    if (!$this->getRequest()->isPost() || !WebmaniaNFeSecurity::equals(Mage::getSingleton('core/session')->getFormKey(), $this->getRequest()->getParam('form_key'))) {
+      $this->getResponse()->setHttpResponseCode(403); return;
+    }
 
-    $order_id = $this->getRequest()->getParam('order_id');
+
+    $order_id = (int) $this->getRequest()->getParam('order_id');
 
     $order = Mage::getModel('sales/order')->load($order_id);
 
@@ -60,6 +69,10 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
       'peso_liquido'     => $this->getRequest()->getPost('nfe_transporte_peso_liquido'),
       'modalidade_frete' => $this->getRequest()->getPost('nfe_transporte_modalidade_frete'),
     );
+    // Only plain values are stored (they are printed back in the order view form)
+    foreach ($transporte_info as $field => $value) {
+      $transporte_info[$field] = is_scalar($value) ? (string) $value : '';
+    }
 
     $json_info = json_encode($transporte_info);
     $order->setData('nfe_transporte_info', $json_info);
@@ -75,7 +88,7 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
   public function updateAction() {
 
     $chave_acesso = $this->getRequest()->getParam('chave_acesso');
-    $order_id = $this->getRequest()->getParam('order_id');
+    $order_id = (int) $this->getRequest()->getParam('order_id');
 
     $notafiscal = new WebmaniaBR_NFe_Model_Observer;
     $response = $notafiscal->updateNotaFiscal($chave_acesso);
@@ -88,7 +101,7 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
       $new_status = $response->status;
       $order = Mage::getModel('sales/order')->load($order_id);
 
-      $nfe_data = unserialize(base64_decode($order->getData('all_nfe')));
+      $nfe_data = \WebmaniaNFeSecurity::invoices($order->getData('all_nfe'));
 
       foreach($nfe_data as &$order_nfe){
         if($order_nfe['chave_acesso'] == $chave_acesso){
@@ -109,9 +122,13 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
   }
 
   public function emitirAction(){
+    if (!$this->getRequest()->isPost() || !WebmaniaNFeSecurity::equals(Mage::getSingleton('core/session')->getFormKey(), $this->getRequest()->getParam('form_key'))) {
+      $this->getResponse()->setHttpResponseCode(403); return;
+    }
 
 
-    $orders = $_POST['order_ids'];
+
+    $orders = isset($_POST['order_ids']) && is_array($_POST['order_ids']) ? array_map('intval', $_POST['order_ids']) : array();
 
     foreach ($orders as $number){
 
@@ -126,14 +143,15 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
         Mage::getSingleton('core/session')->addError("Nota Fiscal #".$orderno.': '.$response->error);
       }elseif($response->status == 'reprovado'){
         if (isset($response->log)){
-          if ($response->log->xMotivo){
+          if (!empty($response->log->xMotivo)){
             if(isset($response->log->aProt[0]->xMotivo)){
 							$error = $response->log->aProt[0]->xMotivo;
 						}else{
 							$error = $response->log->xMotivo;
 						}
 
-            Mage::getSingleton('core/session')->addError("- ".$error);
+            // Admin session messages are rendered as HTML in Magento 1
+            Mage::getSingleton('core/session')->addError("- ".Mage::helper('core')->escapeHtml($error));
           }
         }
       }else {
@@ -154,7 +172,7 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
         $setup->addAttribute('order', 'all_nfe', $attribute);
         $setup->endSetup();
 
-        $existing_nfe = unserialize(base64_decode($order->getData('all_nfe')));
+        $existing_nfe = \WebmaniaNFeSecurity::invoices($order->getData('all_nfe'));
         if(!$existing_nfe) $existing_nfe = array();
         $status = (string) $response->status;
 
@@ -184,7 +202,7 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
         $nfe_info_str = base64_encode(serialize($existing_nfe));
         $order->setData('all_nfe', $nfe_info_str);
         $order->save();
-        Mage::getSingleton('core/session')->addSuccess("Nota Fiscal #".$orderno.': Emitida com sucesso. (Chave de acesso: '.$response->chave.' | Status: '.$status.')');
+        Mage::getSingleton('core/session')->addSuccess("Nota Fiscal #".$orderno.': Emitida com sucesso. (Chave de acesso: '.Mage::helper('core')->escapeHtml((string) $response->chave).' | Status: '.Mage::helper('core')->escapeHtml($status).')');
       }
 
     }
@@ -197,7 +215,7 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
 
   public function imprimirDanfeAction() {
 
-    $orders = $_POST['order_ids'];
+    $orders = isset($_POST['order_ids']) && is_array($_POST['order_ids']) ? array_map('intval', $_POST['order_ids']) : array();
 
     $notafiscal = new WebmaniaBR_NFe_Model_Observer;
     $notafiscal->imprimirDanfe($orders, 'danfe');
@@ -206,7 +224,7 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
 
   public function imprimirDanfeSimplesAction() {
 
-    $orders = $_POST['order_ids'];
+    $orders = isset($_POST['order_ids']) && is_array($_POST['order_ids']) ? array_map('intval', $_POST['order_ids']) : array();
 
     $notafiscal = new WebmaniaBR_NFe_Model_Observer;
     $notafiscal->imprimirDanfe($orders, 'danfe_simples');
@@ -215,7 +233,7 @@ class WebmaniaBR_Nfe_StandardController extends Mage_Adminhtml_Controller_Action
 
   public function imprimirDanfeEtiquetaAction() {
 
-    $orders = $_POST['order_ids'];
+    $orders = isset($_POST['order_ids']) && is_array($_POST['order_ids']) ? array_map('intval', $_POST['order_ids']) : array();
 
     $notafiscal = new WebmaniaBR_NFe_Model_Observer;
     $notafiscal->imprimirDanfe($orders, 'danfe_etiqueta');

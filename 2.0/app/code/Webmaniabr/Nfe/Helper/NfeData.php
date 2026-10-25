@@ -1,5 +1,6 @@
 <?php
 namespace Webmaniabr\Nfe\Helper;
+require_once __DIR__ . '/Security.php';
 
 use Magento\Backend\App\Action\Context;
 use Magento\Ui\Component\MassAction\Filter;
@@ -10,6 +11,10 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 
 class NfeData
 {
+    protected $_productFactory;
+    protected $certificado;
+    protected $configWriter;
+    protected $_objectManager;
     protected $scopeConfig;
 
     protected $productFactory;
@@ -33,6 +38,10 @@ class NfeData
     /*
     /* return boolean
     */
+    public function is_active_nfe_status($status) {
+        return in_array($status, array('Emitida', 'aprovado', 'processamento', 'processando', 'contingencia', 'pendente'), true);
+    }
+
     public function get_nfe_duplicada() {
 
          $nfe_duplicada = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_access_token_configs/nfe_duplicada', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
@@ -47,10 +56,12 @@ class NfeData
     */
     public function get_access_permissions() {
 
-        $consumer_key = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_access_token_configs/consumer_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $consumer_secret = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_access_token_configs/consumer_secret', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $access_token = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_access_token_configs/access_token', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $access_token_secret = $this->scopeConfig->getValue('webmaniabr_nfe_configs/group_access_token_configs/access_token_secret', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        \WebmaniaNFeSecurity::migrateCredentials();
+
+        $consumer_key = \WebmaniaNFeSecurity::decryptCredential($this->scopeConfig->getValue('webmaniabr_nfe_configs/group_access_token_configs/consumer_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
+        $consumer_secret = \WebmaniaNFeSecurity::decryptCredential($this->scopeConfig->getValue('webmaniabr_nfe_configs/group_access_token_configs/consumer_secret', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
+        $access_token = \WebmaniaNFeSecurity::decryptCredential($this->scopeConfig->getValue('webmaniabr_nfe_configs/group_access_token_configs/access_token', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
+        $access_token_secret = \WebmaniaNFeSecurity::decryptCredential($this->scopeConfig->getValue('webmaniabr_nfe_configs/group_access_token_configs/access_token_secret', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
 
         $access_permissions = array (
             "consumer_key" => $consumer_key,
@@ -170,7 +181,7 @@ class NfeData
     */
     public function get_transportadoras($shipping_method) {
 
-        $transportadoras = unserialize($this->scopeConfig->getValue('webmaniabr_nfe_transportadoras/todas_transportadora/transportadoras', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
+        $transportadoras = \WebmaniaNFeSecurity::decode($this->scopeConfig->getValue('webmaniabr_nfe_transportadoras/todas_transportadora/transportadoras', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
 
         // If there's no shipping info maped, return null
         if( !$transportadoras ) {
@@ -219,6 +230,8 @@ class NfeData
     /* return array
     */
     public function get_transportadoras_info ($order_id) {
+        $order_id = (int) $order_id;
+
 
         // Create an object to SQL use
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
@@ -259,7 +272,7 @@ class NfeData
 
         $metodos_pagamento = $this->scopeConfig->getValue('webmaniabr_nfe_pagamentos/todos_metodos_pagamentos/metodos_pagamento', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
-        return unserialize($metodos_pagamento);
+        return \WebmaniaNFeSecurity::decode($metodos_pagamento);
 
     }
 
@@ -315,70 +328,26 @@ class NfeData
     /* return (string) $secret_key
     */
     public function manage_secret_key ($order_id, $secret_type) {
-
-        // Create an object to SQL use
         $resource = $this->_objectManager->get('Magento\Framework\App\ResourceConnection');
         $connection = $resource->getConnection();
-        $tableName = $resource->getTableName('webmaniabrnfe_secret_keys');
-
-        // Get the actual date
-        $date = date('Y-m-d H:i:s');
-
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $characters_length = strlen($characters);
-        $random_key = '';
-
-        for ($i = 0; $i <= 10; $i++) {
-            $random_key .= $characters[rand(0, $characters_length - 1)];
-        }
-
-        $secret_key = $order_id . "_" . $random_key;
-
-        // Store the new key for secure request
-        $sql = "INSERT INTO " . $tableName . " ( secret_type, secret_key, requested_at )
-                VALUES ( '$secret_type', '$secret_key', '$date' )";
-
-        // Delete older keys
-        $delete_date = date("Y-m-d H:i:s", strtotime('-48 hours', time()));
-
-        $delete_sql = "DELETE FROM " . $tableName . "
-                WHERE secret_type='$secret_type' AND requested_at <= '$delete_date'";
-
-        $connection->query($sql);
-
-        $connection->query($delete_sql);
-
+        $table = $resource->getTableName('webmaniabrnfe_secret_keys');
+        $secret_key = (int) $order_id . '_' . substr(\WebmaniaNFeSecurity::randomToken(), 0, 32);
+        $connection->insert($table, array('secret_type' => $secret_type, 'secret_key' => $secret_key, 'requested_at' => date('Y-m-d H:i:s')));
+        $connection->delete($table, array('secret_type = ?' => $secret_type, 'requested_at <= ?' => date('Y-m-d H:i:s', time() - 172800)));
         return $secret_key;
-
-    }
+}
 
     public function validate_secret_key ( $secret_type, $secret_key ) {
-
-            // Create an object to SQL use
-            $resource = $this->_objectManager->get('Magento\Framework\App\ResourceConnection');
-            $connection = $resource->getConnection();
-            $tableName = $resource->getTableName('webmaniabrnfe_secret_keys');
-
-            $sql = "SELECT id_webmaniabrnfe_secret_keys FROM $tableName WHERE secret_type='$secret_type' AND secret_key='$secret_key'";
-
-            $connection->query($sql);
-
-            $result = $connection->fetchAll($sql);
-
-            // If is empty, block the operation
-            if ( empty($result) ) {
-                return array(
-                    "type" => "invalid",
-                    "message" => "A chave secreta é inválida. Recarregue a página para prosseguir."
-                );
-            } else {
-                return array(
-                    "type" => "valid",
-                    "message" => ""
-                );
-            }
-
-    }
+        $invalid = array('type' => 'invalid', 'message' => 'A chave secreta é inválida ou expirou. Recarregue a página para prosseguir.');
+        if (!is_string($secret_key) || !preg_match('/^[1-9][0-9]*_[a-zA-Z0-9]{11,64}$/D', $secret_key) ||
+            !in_array($secret_type, array('nfe_ajax', 'nfe_callback', 'nfe_btn_emitir'), true)) { return $invalid; }
+        $resource = $this->_objectManager->get('Magento\Framework\App\ResourceConnection');
+        $connection = $resource->getConnection();
+        $select = $connection->select()->from($resource->getTableName('webmaniabrnfe_secret_keys'), array('id_webmaniabrnfe_secret_keys'))
+            ->where('secret_type = ?', $secret_type)->where('secret_key = ?', $secret_key)
+            ->where('requested_at >= ?', date('Y-m-d H:i:s', time() - 172800))->limit(1);
+        return $connection->fetchOne($select) ? array('type' => 'valid', 'message' => '') : $invalid;
+}
 
     /* Set cache to Certificado A1
     /*
@@ -390,7 +359,7 @@ class NfeData
         $access_permissions = $this->get_access_permissions();
 
         // Set the date based on expiration date
-        $expiration_date = date('d/m/Y', strtotime("+".$expiration." days"));
+        $expiration_date = date('d/m/Y', strtotime("+" . (int) $expiration . " days"));
 
         // Prepare the array to save the cache
         $certificado_a1 = array(
@@ -403,7 +372,7 @@ class NfeData
         );
 
         // Save the array
-        $this->configWriter->save('webmaniabr_nfe_configs/group_access_token_configs/certificadoa1', serialize($certificado_a1), $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0);
+        $this->configWriter->save('webmaniabr_nfe_configs/group_access_token_configs/certificadoa1', \WebmaniaNFeSecurity::encryptCredential(serialize($certificado_a1)), $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0);
 
     }
 
@@ -427,7 +396,10 @@ class NfeData
             $access_permissions = $this->get_access_permissions();
 
             // Unserialize the cache
-            $cache_details = unserialize($cache_certificado);
+            $cache_details = \WebmaniaNFeSecurity::decode(\WebmaniaNFeSecurity::decryptCredential($cache_certificado));
+            foreach (array('consumer_key', 'consumer_secret', 'access_token', 'access_token_secret', 'expiration', 'expiration_date') as $cache_field) {
+                if (!isset($cache_details[$cache_field])) { $cache_details[$cache_field] = ''; }
+            }
 
             // Check if the cache is registered for the same permisions keys
             if (
@@ -443,7 +415,7 @@ class NfeData
                 $this->certificado = $this->connect_webmaniabr( 'GET', 'https://webmaniabr.com/api/1/nfe/certificado/', "" );
 
                 // Check if the tokens are valid
-                if ( isset($this->certificado->error) ) {
+                if ( isset($this->certificado->error) || !isset($this->certificado->expiration) ) {
                     return false;
                 }
 
@@ -468,6 +440,8 @@ class NfeData
     /* return (string) $status
     */
     public function get_status_order_by_id ( $order_id ) {
+        $order_id = (int) $order_id;
+
 
         // Create an object to SQL use
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
@@ -476,7 +450,7 @@ class NfeData
         $tableName = $resource->getTableName('webmaniabrnfe_orders_nfe');
 
         // Consult if the actual order already has a NF-e with Status "Emitida"
-        $sql = "SELECT status FROM " . $tableName . " WHERE order_id='" . $order_id . "' ORDER BY requested_at DESC LIMIT 1";
+        $sql = "SELECT status FROM " . $tableName . " WHERE order_id='" . $order_id . "' ORDER BY requested_at DESC, id_webmaniabrnfe_orders_nfe DESC LIMIT 1";
         $result = $connection->fetchAll($sql);
 
         // Check if $result is not empty to avoid crash code
@@ -497,20 +471,15 @@ class NfeData
     /*
     */
     public function add_status_nfe ($order_id, $uuid, $chave_acesso, $n_recibo, $n_nfe, $n_serie, $url_xml, $url_danfe, $status, $date) {
-
-        // Create an object to SQL use
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+        $resource = $this->_objectManager->get('Magento\Framework\App\ResourceConnection');
         $connection = $resource->getConnection();
-        $tableName = $resource->getTableName('webmaniabrnfe_orders_nfe');
-
-        $sql = "INSERT INTO " . $tableName . "
-                (order_id, uuid, chave_acesso, n_recibo, n_nfe, n_serie, url_xml, url_danfe, status, requested_at)
-                VALUES (" . $order_id . ",'" . $uuid . "','" . $chave_acesso . "', '" . $n_recibo . "', '" . $n_nfe . "', '" . $n_serie . "', '" . $url_xml . "', '" . $url_danfe . "', '" . $status . "', '" . $date . "')";
-
-        $connection->query($sql);
-
-    }
+        $connection->insert($resource->getTableName('webmaniabrnfe_orders_nfe'), array(
+            'order_id' => (int) $order_id, 'uuid' => $uuid, 'chave_acesso' => $chave_acesso,
+            'n_recibo' => $n_recibo, 'n_nfe' => (int) $n_nfe, 'n_serie' => (int) $n_serie,
+            'url_xml' => \WebmaniaNFeSecurity::validUrl($url_xml, true) ? $url_xml : '',
+            'url_danfe' => \WebmaniaNFeSecurity::validUrl($url_danfe, true) ? $url_danfe : '',
+            'status' => $status, 'requested_at' => $date));
+}
     
     /* Get product information from order
     /* @param (int) $order_id
@@ -644,6 +613,8 @@ class NfeData
     /* return array
     */
     public function get_the_order_data_by_id ( $order_id, $bath_process = false ) {
+        $order_id = (int) $order_id;
+
 
         $order = $this->_objectManager->create('Magento\Sales\Model\Order')->load($order_id);
         $storeManager = $this->_objectManager->get('\Magento\Store\Model\StoreManagerInterface');
@@ -688,7 +659,7 @@ class NfeData
             }
 
             // If the field used is Tax VAT
-            $cpf_cnpj = str_replace( array('/', '.', '-'), '', $cpf_cnpj);
+            $cpf_cnpj = \WebmaniaNFeSecurity::normalizeDocument($cpf_cnpj);
 
             if (strlen($cpf_cnpj) == 14) {
 
@@ -750,8 +721,8 @@ class NfeData
 
                 $address_maped = $this->get_linhas_endereco_maped();
 
-                $endereco = $cliente_details_address[$address_maped["endereco"]];
-                $numero = $cliente_details_address[$address_maped["numero"]];
+                $endereco = isset($cliente_details_address[$address_maped["endereco"]]) ? $cliente_details_address[$address_maped["endereco"]] : "";
+                $numero = isset($cliente_details_address[$address_maped["numero"]]) ? $cliente_details_address[$address_maped["numero"]] : "";
 
                 if ( isset($cliente_details_address[$address_maped["complemento"]]) ) {
                     $complemento = $cliente_details_address[$address_maped["complemento"]];
@@ -941,7 +912,7 @@ class NfeData
             $shipping_company = $this->get_transportadoras($order->getShippingDescription());
             $shipping_company_info = $this->get_transportadoras_info($order_id);
 
-            if ( is_array($shipping_company) && $shipping_company_info["utilizar_transportadora"] ) {
+            if ( is_array($shipping_company) && !empty($shipping_company_info["utilizar_transportadora"]) ) {
 
                 if ( $shipping_company_info == NULL ) {
                     return "As informações da transportadora não estão cadastradas no pedido em Página do Pedido -> [Aba] Transportadoras NF-e #". $order_id .", por favor, configure-o antes de prosseguir.";
@@ -953,15 +924,15 @@ class NfeData
                 $order_details["transporte"]["peso_liquido"] = $shipping_company_info["peso_liquido"];
 
                 // Check if the field is registered as CPF or CNPJ
-                $cpf_cnpj = str_replace( array('/', '.', '-'), '', $shipping_company["transportadora_cnpj"]);
+                $cpf_cnpj = \WebmaniaNFeSecurity::normalizeDocument($shipping_company["transportadora_cnpj"]);
 
                 // Check if variable is CPF or CNPJ
-                if (strlen($cpf_cnpj) == 14 && is_numeric($cpf_cnpj) ) {
+                if (\WebmaniaNFeSecurity::validCnpj($cpf_cnpj) ) {
 
                     $order_details["transporte"]["cnpj"] = $shipping_company["transportadora_cnpj"];
                     $order_details["transporte"]["razao_social"] = $shipping_company["transportadora_razao_social"];
 
-                } elseif ( strlen($cpf_cnpj) == 11 && is_numeric($cpf_cnpj) ) {
+                } elseif ( preg_match('/\A[0-9]{11}\z/', $cpf_cnpj) ) {
 
                     $order_details["transporte"]["cpf"] = $shipping_company["transportadora_cnpj"];
                     $order_details["transporte"]["nome_completo"] = $shipping_company["transportadora_razao_social"];
@@ -1034,7 +1005,7 @@ class NfeData
             "Tocantins" => "TO"
         );
 
-        return $estados[$region];
+        return is_string($region) && isset($estados[$region]) ? $estados[$region] : $region;
 
     }
 
@@ -1051,8 +1022,14 @@ class NfeData
 
             if ( isset($response->error) ) {
 
+                    $uncertain = !empty($response->request_uncertain);
+                    if ($uncertain) {
+                        $this->add_status_nfe($order_id, '', '', '', 0, 0, '', '', 'pendente', date('Y-m-d H:i:s'));
+                    }
+
                     return array (
                             'return' => 'error',
+                            'uncertain' => $uncertain,
                             'message' => "Pedido #". $order_id .": ". $response->error
                         );
 
@@ -1060,7 +1037,7 @@ class NfeData
 
                     if (isset($response->log)){
 
-                        if ($response->log->xMotivo){
+                        if (!empty($response->log->xMotivo)){
 
                             if( isset($response->log->aProt[0]->xMotivo) ) {
 
@@ -1105,6 +1082,8 @@ class NfeData
     /* return string
     */
     public function register_comment ( $order_id, $username, $url_danfe ) {
+        $order_id = (int) $order_id;
+
 
         $model = $this->_objectManager->create('Magento\Sales\Model\Order');
 
@@ -1129,92 +1108,7 @@ class NfeData
     /* return array
     */
     public function connect_webmaniabr( $request, $endpoint, $data ) {
-
-        // Verify cURL
-        if (!function_exists('curl_version')){
-          $curl_error = new \StdClass();
-          $curl_error->error = 'cURL não localizado! Não é possível obter conexão na API da WebmaniaBR®. Verifique junto ao programador e a sua hospedagem. (PHP: '.phpversion().')';
-          return $curl_error;
-        }
-
-        // Set limits
-        @set_time_limit( 300 );
-        ini_set('max_execution_time', 300);
-        ini_set('max_input_time', 300);
-        ini_set('memory_limit', '256M');
-        if (
-            strpos($endpoint, '/sefaz/') !== false ||
-            strpos($endpoint, '/certificado/') !== false
-        ){
-            $timeout = 15;
-        } else {
-            $timeout = 300;
-        }
-
-        // Header
-        $access_permissions = $this->get_access_permissions();
-
-        $headers = array(
-            'Cache-Control: no-cache',
-            'Content-Type:application/json',
-            'X-Consumer-Key: '.$access_permissions["consumer_key"],
-            'X-Consumer-Secret: '.$access_permissions["consumer_secret"],
-            'X-Access-Token: '.$access_permissions["access_token"],
-            'X-Access-Token-Secret: '.$access_permissions["access_token_secret"],
-        );
-
-        // Init connection
-        $rest = curl_init();
-        curl_setopt($rest, CURLOPT_CONNECTTIMEOUT , 10);
-        curl_setopt($rest, CURLOPT_TIMEOUT, $timeout);
-        curl_setopt($rest, CURLOPT_URL, $endpoint.'?time='.time());
-        curl_setopt($rest, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($rest, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($rest, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($rest, CURLOPT_CUSTOMREQUEST, $request);
-        curl_setopt($rest, CURLOPT_POSTFIELDS, json_encode( $data ));
-        curl_setopt($rest, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($rest, CURLOPT_FRESH_CONNECT, true);
-        curl_setopt($rest, CURLOPT_FOLLOWLOCATION, 1);
-
-        // Connect to API
-        $response = curl_exec($rest);
-        $http_status = curl_getinfo($rest, CURLINFO_HTTP_CODE);
-        $curl_errno = (int) curl_errno($rest);
-        if ($curl_errno){
-            $curl_strerror = curl_strerror($curl_errno);
-        }
-
-        curl_close($rest);
-
-        // Get cURL errors
-        $curl_error = new \StdClass();
-        if ($curl_errno){
-          // Get User IP
-          $ip = $_SERVER['CF-Connecting-IP']; // CloudFlare
-          if (!$ip){
-            $ip = $_SERVER['REMOTE_ADDR']; // Standard
-          }
-          if (is_array($ip)){
-            $ip = $ip[0];
-          }
-          // cURL errors
-          if (!$http_status){
-            $curl_error->error = 'Não foi possível obter conexão na API da WebmaniaBR®, possível relação com bloqueio no Firewall ou versão antiga do PHP. Verifique junto ao programador e a sua hospedagem a comunicação na URL: https://webmaniabr.com/api/. (cURL: '.$curl_strerror.' | PHP: '.phpversion().' | cURL: '.curl_version().')';
-          } elseif ($http_status == 500) {
-            $curl_error->error = 'Ocorreu um erro ao processar a sua requisição. A nossa equipe já foi notificada, em caso de dúvidas entre em contato com o suporte da WebmaniaBR®. (cURL: '.$curl_strerror.' | HTTP Code: '.$http_status.' | IP: '.$ip.')';
-          } elseif (!in_array($http_status, array(401, 403))) {
-            $curl_error->error = 'Não foi possível se conectar na API da WebmaniaBR®. Em caso de dúvidas entre em contato com o suporte da WebmaniaBR®. (cURL: '.$curl_strerror.' | HTTP Code: '.$http_status.' | IP: '.$ip.')';
-          }
-        }
-
-        // Return
-        if ( isset($curl_error->error) ){
-            return $curl_error;
-        } else {
-            return json_decode($response);
-        }
-
-    }
+        return \WebmaniaNFeSecurity::jsonRequest($request, $endpoint, $data, $this->get_access_permissions());
+}
 
 }

@@ -6,6 +6,7 @@ use Webmaniabr\Nfe\Helper\NfeData;
 
 class Nfeactions extends \Magento\Framework\App\Action\Action
 {
+	protected $nfeData;
 	protected $_pageFactory;
 	protected $request;
 
@@ -19,23 +20,33 @@ class Nfeactions extends \Magento\Framework\App\Action\Action
     }
 
 	public function execute() {
+        // Validate only values consumed by routing/actions. Callback log/data may be arrays;
+        // they are ignored because invoice fields are confirmed server-to-server via the API.
+        foreach (array('nfe_callback', 'nfe_btn_emitir', 'order_id', 'action', 'utilizar_transportadora', 'volume', 'especie', 'peso_bruto', 'peso_liquido', 'key', 'uuid') as $field) {
+            if ((isset($_GET[$field]) && !is_scalar($_GET[$field])) || (isset($_POST[$field]) && !is_scalar($_POST[$field]))) {
+                $this->getResponse()->setHttpResponseCode(400); return;
+            }
+        }
+        if ((isset($_GET['nfe_callback']) || isset($_GET['nfe_btn_emitir']) || isset($_POST['action'])) &&
+            (!isset($_GET['order_id']) && !isset($_POST['order_id']))) { $this->getResponse()->setHttpResponseCode(400); return; }
+
 	    
-	    if ( isset($_POST['action']) && $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+	    if ( isset($_POST['action']) && (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '') === 'POST' ) {
 	        
 	        if ( $_POST['action'] == "updatetransportadora" ) {
-	            $this->handle_transportadoras_info( $_POST["utilizar_transportadora"], $_POST["order_id"], $_POST["volume"], $_POST["especie"], $_POST["peso_bruto"], $_POST["peso_liquido"], $_POST["key"] );
+	            $this->handle_transportadoras_info( (isset($_POST["utilizar_transportadora"]) ? $_POST["utilizar_transportadora"] : ""), (isset($_POST["order_id"]) ? $_POST["order_id"] : 0), (isset($_POST["volume"]) ? $_POST["volume"] : ""), (isset($_POST["especie"]) ? $_POST["especie"] : ""), (isset($_POST["peso_bruto"]) ? $_POST["peso_bruto"] : ""), (isset($_POST["peso_liquido"]) ? $_POST["peso_liquido"] : ""), (isset($_POST["key"]) ? $_POST["key"] : "") );
 	            return;
 	        }
 
 	    }
 	    
-	    if ( isset($_GET['nfe_callback']) && $_SERVER['REQUEST_METHOD'] === 'POST' ) {
-	        $this->nfe_callback( $_GET['nfe_callback'], $_GET['order_id'] );
+	    if ( isset($_GET['nfe_callback']) && (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '') === 'POST' ) {
+	        $this->nfe_callback( $_GET['nfe_callback'], (isset($_GET['order_id']) ? $_GET['order_id'] : 0) );
 	        return;
 	    }
 	    
 	    if ( isset($_GET['nfe_btn_emitir']) ) {
-	        $this->emitir_nfe_btn( $_GET["nfe_btn_emitir"], $_GET["order_id"] );
+	        $this->emitir_nfe_btn( $_GET["nfe_btn_emitir"], (isset($_GET["order_id"]) ? $_GET["order_id"] : 0) );
 	        return;
 	    }
 	    
@@ -58,6 +69,12 @@ class Nfeactions extends \Magento\Framework\App\Action\Action
     /* return (string) $message
     */
 	public function handle_transportadoras_info($utilizar_transportadora, $order_id, $volume, $especie, $peso_bruto, $peso_liquido, $secret_key) {
+        if (!is_scalar($order_id) || !ctype_digit((string) $order_id) || (int) $order_id < 1 ||
+            !is_string($secret_key) || strpos($secret_key, (string) (int) $order_id . '_') !== 0) {
+            $this->getResponse()->setHttpResponseCode(403); return;
+        }
+        $order_id = (int) $order_id;
+
 	    
         // Create an object to SQL use
         $resource = $this->_objectManager->get('Magento\Framework\App\ResourceConnection');
@@ -70,41 +87,15 @@ class Nfeactions extends \Magento\Framework\App\Action\Action
             die();
         }
         
-        // Retrieve the order id
-        $tableName = $resource->getTableName('webmaniabrnfe_orders_transportadora');
-        
-        $sql = "SELECT order_id FROM " . $tableName . " WHERE order_id='" . $order_id . "'";
-        
-        $connection->query($sql);
-        
-        $result = $connection->fetchAll($sql);
-        
-        // Check if $result is not empty to avoid crash code
-        if( empty($result) ) {
-            
-            // Store the response of the WebmaniaBR REST API
-            $sql = "INSERT INTO " . $tableName . " (order_id, utilizar_transportadora, volume, especie, peso_bruto, peso_liquido)
-                    VALUES (" . $order_id . ",'" . $utilizar_transportadora . "','" . $volume . "','" . $especie . "', '" . $peso_bruto . "', '" . $peso_liquido . "')";
-                    
-            $connection->query($sql);
-            
-            echo "Dados adicionados com sucesso.";
-            
-        } else {
-            
-            $sql = "UPDATE " . $tableName . "
-                    SET utilizar_transportadora='" . $utilizar_transportadora . "', volume='" . $volume . "', especie='" . $especie . "', peso_bruto='" . $peso_bruto . "', peso_liquido='" . $peso_liquido . "'
-                    WHERE order_id ='" . $order_id . "';";
-                    
-            $connection->query($sql);
-            
-            echo "Dados atualizados com sucesso.";
-            
-        }
-        
-        die();
-
-	}
+        $values = array('utilizar_transportadora' => (int) $utilizar_transportadora,
+            'volume' => (string) $volume, 'especie' => (string) $especie,
+            'peso_bruto' => (string) $peso_bruto, 'peso_liquido' => (string) $peso_liquido);
+        $table = $resource->getTableName('webmaniabrnfe_orders_transportadora');
+        $exists = $connection->fetchOne($connection->select()->from($table, array('order_id'))->where('order_id = ?', $order_id)->limit(1));
+        if ($exists) { $connection->update($table, $values, array('order_id = ?' => $order_id)); }
+        else { $values['order_id'] = $order_id; $connection->insert($table, $values); }
+        echo 'Dados salvos com sucesso.';
+}
 	
     /* Handle informations received by API callback
     /* @param (int) $order_id
@@ -113,66 +104,38 @@ class Nfeactions extends \Magento\Framework\App\Action\Action
     /* return (string) $message
     */
 	public function nfe_callback($secret_key, $order_id) {
-
-        $order = $this->_objectManager->create('Magento\Sales\Model\Order')->load($order_id);
-        
-        // Create an object to SQL use
+        if (!is_scalar($order_id) || !ctype_digit((string) $order_id) || (int) $order_id < 1 ||
+            !is_string($secret_key) || strpos($secret_key, (string) (int) $order_id . '_') !== 0) {
+            $this->getResponse()->setHttpResponseCode(403); return;
+        }
+        $order_id = (int) $order_id;
+        $validation = $this->nfeData->validate_secret_key('nfe_callback', $secret_key);
+        if ($validation['type'] !== 'valid') { $this->getResponse()->setHttpResponseCode(403); return; }
+        $uuid = isset($_POST['uuid']) ? $_POST['uuid'] : null;
+        if (!\WebmaniaNFeSecurity::validUuid($uuid)) { $this->getResponse()->setHttpResponseCode(400); return; }
+        $response = $this->nfeData->connect_webmaniabr('GET', 'https://webmaniabr.com/api/1/nfe/consulta/', array('uuid' => $uuid));
+        if (isset($response->error) || !isset($response->uuid) || $response->uuid !== $uuid) {
+            $this->getResponse()->setHttpResponseCode(502); return;
+        }
+        if (isset($response->ID) && (!is_scalar($response->ID) || (string) $response->ID !== (string) $order_id)) {
+            $this->getResponse()->setHttpResponseCode(403); return;
+        }
         $resource = $this->_objectManager->get('Magento\Framework\App\ResourceConnection');
         $connection = $resource->getConnection();
-        
-        $validation_secret_key = $this->nfeData->validate_secret_key( "nfe_callback", $secret_key );
-        
-        if ( $validation_secret_key["type"] == "invalid" ) {
-            echo $validation_secret_key["message"];
-            die();
+        $table = $resource->getTableName('webmaniabrnfe_orders_nfe');
+        $rows = $connection->fetchAll($connection->select()->from($table, array('order_id'))->where('uuid = ?', $uuid));
+        foreach ($rows as $row) {
+            if ((int) $row['order_id'] !== $order_id) { $this->getResponse()->setHttpResponseCode(403); return; }
         }
-        
-        // Store the response of the WebmaniaBR REST API
-        $uuid = (string) $_POST['uuid'];
-        $chave_acesso = (string) $_POST['chave'];
-        $n_recibo = ( isset($_POST['recibo']) ? $_POST['recibo'] : "" );
-        $n_nfe = (int) $_POST['nfe'];
-        $n_serie = (int) $_POST['serie'];
-        $url_xml = (string) $_POST['xml'];
-        $url_danfe = (string) $_POST['danfe'];
-        $status = (string) $_POST['status'];
-        $date = date('Y-m-d H:i:s');
-        
-        // Retrieve the order id
-        $tableName = $resource->getTableName('webmaniabrnfe_orders_nfe');
-        
-        $sql = "SELECT uuid FROM $tableName WHERE uuid='$uuid'";
-        
-        $connection->query($sql);
-        
-        $result = $connection->fetchAll($sql);
-        
-        // Check if $result is not empty to avoid crash code
-        if( empty($result) ) {
-            
-            $sql = "INSERT INTO $tableName
-                    (order_id, uuid, chave_acesso, n_recibo, n_nfe, n_serie, url_xml, url_danfe, status, requested_at)
-                    VALUES ($order_id,'$uuid','$chave_acesso', '$n_recibo', '$n_nfe', '$n_serie', '$url_xml', '$url_danfe', '$status', '$date')";
-                    
-            $connection->query($sql);
-            
-            echo "NF-e criada com sucesso.";
-            
-        } else {
-            
-            $sql = "UPDATE $tableName
-                    SET chave_acesso='$chave_acesso', n_recibo='$n_recibo', n_nfe='$n_nfe', n_serie='$n_serie', url_xml='$url_xml', url_danfe='$url_danfe', status='$status', requested_at='$date'
-                    WHERE uuid ='$uuid';";
-                    
-            $connection->query($sql);
-                    
-            echo "NF-e atualizada com sucesso.";
+        $values = array('chave_acesso' => $response->chave, 'n_recibo' => $response->recibo,
+            'n_nfe' => (int) $response->nfe, 'n_serie' => (int) $response->serie,
+            'url_xml' => $response->xml, 'url_danfe' => $response->danfe,
+            'status' => $response->status);
+        if ($rows) { $connection->update($table, $values, array('uuid = ?' => $uuid, 'order_id = ?' => $order_id)); }
+        else { $values['requested_at'] = date('Y-m-d H:i:s'); $values['uuid'] = $uuid; $values['order_id'] = $order_id; $connection->insert($table, $values); }
+        echo 'NF-e atualizada com sucesso.';
 
-        }
-        
-        die();
-        
-	}
+}
 	
     /* Trigger actions to emission of NF-e
     /* @param (int) $order_id
@@ -181,6 +144,12 @@ class Nfeactions extends \Magento\Framework\App\Action\Action
     /* return (string) $message
     */
     public function emitir_nfe_btn( $secret_key, $order_id ) {
+        if (!is_scalar($order_id) || !ctype_digit((string) $order_id) || (int) $order_id < 1 ||
+            !is_string($secret_key) || strpos($secret_key, (string) (int) $order_id . '_') !== 0) {
+            $this->getResponse()->setHttpResponseCode(403); return;
+        }
+        $order_id = (int) $order_id;
+
         
         $validation_secret_key = $this->nfeData->validate_secret_key( "nfe_btn_emitir", $secret_key );
         
@@ -197,7 +166,7 @@ class Nfeactions extends \Magento\Framework\App\Action\Action
         
         // Check if the actual order already has a NF-e with Status "Emitida"
         // and the option nfe_duplicada is allowed
-        if( $result == "Emitida" && !$nfe_duplicada ) return;
+        if( $this->nfeData->is_active_nfe_status($result) && !$nfe_duplicada ) return;
         
         // Prepare the data for API
         $data = $this->nfeData->get_the_order_data_by_id($order_id);

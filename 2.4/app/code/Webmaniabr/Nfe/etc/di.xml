@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+        
+    <!-- Security improvements for API calls -->
+    <type name="Webmaniabr\Nfe\Helper\NfeData">
+        <arguments>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+            <argument name="resourceConnection" xsi:type="object">Magento\Framework\App\ResourceConnection</argument>
+        </arguments>
+    </type>
+
+    <!-- Observer configuration -->
+    <type name="Webmaniabr\Nfe\Observer\CheckOrderStatus">
+        <arguments>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+        </arguments>
+    </type>
+
+    <!-- Remove DI overrides desnecessários para patches (Magento injeta automaticamente) -->
+
+    <!-- Virtual types for improved security -->
+    <virtualType name="WebmaniaBrNfeLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">webmaniabr_nfe</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">WebmaniaBrNfeLogHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="WebmaniaBrNfeLogHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/webmaniabr_nfe.log</argument>
+        </arguments>
+    </virtualType>
+
+<!-- Cache configuration -->
+    <type name="Webmaniabr\Nfe\Model\Cache\NfeCache">
+        <arguments>
+            <argument name="cache" xsi:type="object">Magento\Framework\App\Cache\Type\Config</argument>
+            <argument name="serializer" xsi:type="object">Magento\Framework\Serialize\Serializer\Json</argument>
+            <argument name="logger" xsi:type="object">WebmaniaBrNfeLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- Removido plugin de cache: tipo já registrado via etc/cache.xml -->
+
+    <!-- Console commands -->
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="webmaniabr_nfe_validate_compatibility" xsi:type="object">Webmaniabr\Nfe\Console\Command\ValidateCompatibility</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Security validator configuration -->
+    <type name="Webmaniabr\Nfe\Helper\SecurityValidator">
+        <arguments>
+            <argument name="logger" xsi:type="object">WebmaniaBrNfeLogger</argument>
+        </arguments>
+    </type>
+
+</config>

@@ -13,6 +13,8 @@ class ShippingMethods extends \Magento\Framework\View\Element\Html\Select
      */
     private $_shippingMethods;
 
+    protected $allShippingMethods;
+
     /**
      * Construct
      *

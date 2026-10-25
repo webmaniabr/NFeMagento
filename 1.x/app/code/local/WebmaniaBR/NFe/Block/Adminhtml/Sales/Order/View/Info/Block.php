@@ -1,4 +1,5 @@
 <?php
+require_once dirname(__FILE__) . '/../../../../../../inc/Security.php';
 class WebmaniaBR_NFe_Block_Adminhtml_Sales_Order_View_Info_Block extends Mage_Core_Block_Template {
 
     protected $order;
@@ -6,7 +7,7 @@ class WebmaniaBR_NFe_Block_Adminhtml_Sales_Order_View_Info_Block extends Mage_Co
     function get_order_nfe_info(){
       $order = $this->getOrder();
       $data = $order->getData('all_nfe');
-      $array = unserialize(base64_decode($data));
+      $array = \WebmaniaNFeSecurity::invoices($data);
       return $array;
     }
 

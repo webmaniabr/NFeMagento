@@ -1,19 +1,28 @@
 {
-    "name": "Webmaniabr/Nfe",
+    "name": "webmaniabr/nfe",
     "description": "Módulo de emissão de Nota Fiscal Eletrônica para Magento através da REST API da WebmaniaBR®.",
     "require": {
-        "php": "~5.5.0|~5.6.0|~7.0.0",
-        "magento/module-catalog": "101.0.*",
-        "magento/module-config": "100.0.*",
-        "magento/module-store": "100.0.*",
-        "magento/module-customer": "100.1.*",
-        "magento/module-backend": "100.0.*",
-        "magento/framework": "100.0.*"
+        "php": "^8.3.0|^8.4.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-openssl": "*",
+        "ext-mbstring": "*",
+        "magento/module-catalog": "^104.0.0",
+        "magento/module-config": "^101.2.0",
+        "magento/module-store": "^101.1.0", 
+        "magento/module-customer": "^103.0.0",
+        "magento/module-backend": "^102.0.0",
+        "magento/framework": "^103.0.0",
+        "magento/module-sales": "^103.0.0",
+        "magento/module-checkout": "^100.4.0",
+        "magento/module-eav": "^102.1.0",
+        "magento/module-ui": "^101.2.0",
+        "magento/module-webapi": "^100.4.0"
     },
     "type": "magento2-module",
-    "version": "3.1.7.4",
+    "version": "4.0.0",
     "license": [
-        "GPLv2"
+        "GPL-2.0-or-later"
     ],
     "authors": [
         {
@@ -28,7 +37,9 @@
             "registration.php"
         ],
         "psr-4": {
-            "Magentoexplorer\\Helloworld\\": ""
+            "Webmaniabr\\Nfe\\": ""
         }
-    }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

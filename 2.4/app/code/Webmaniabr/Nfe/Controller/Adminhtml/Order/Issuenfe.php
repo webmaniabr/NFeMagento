@@ -6,14 +6,15 @@ use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 
-class Issuenfe extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
+class Issuenfe extends \Magento\Backend\App\Action
 {
-	protected $_pageFactory;
+	const ADMIN_RESOURCE = 'Magento_Sales::actions_edit';
+    protected $_pageFactory;
 	protected $request;
     protected $nfeData;
 
 	public function __construct(
-        \Magento\Framework\App\Action\Context $context,
+        \Magento\Backend\App\Action\Context $context,
         NfeData $nfeData
     ){
         $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
@@ -21,20 +22,17 @@ class Issuenfe extends \Magento\Framework\App\Action\Action implements CsrfAware
         parent::__construct($context);
     }
     
-    public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
-    {
-        return null;
-    }
 
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
-    }
+
+
 
 	public function execute() {
-        // Get order id
-        $order_id = $this->getRequest()->getParam('order_id');
-        if (!$order_id) return;
+        $input = $this->getRequest()->getParam('order_id');
+        $order_id = is_scalar($input) && ctype_digit((string) $input) ? (int) $input : 0;
+        if ($order_id < 1) {
+            $this->messageManager->addErrorMessage('Pedido não informado.');
+            return $this->resultRedirectFactory->create()->setPath('sales/order/index');
+        }
 
         // Get the status order by id
         $result = $this->nfeData->get_status_order_by_id($order_id);
@@ -48,7 +46,7 @@ class Issuenfe extends \Magento\Framework\App\Action\Action implements CsrfAware
         
         // Check if the actual order already has a NF-e with Status "Emitida"
         // and the option nfe_duplicada is allowed
-        if( ($result == "Emitida" || $result == "aprovado") && !$nfe_duplicada ) {
+        if( $this->nfeData->is_active_nfe_status($result) && !$nfe_duplicada ) {
             $this->messageManager->addNoticeMessage("Já existe uma nota fiscal emitida para o pedido #{$order_id}.");
             return $resultRedirect;
         }

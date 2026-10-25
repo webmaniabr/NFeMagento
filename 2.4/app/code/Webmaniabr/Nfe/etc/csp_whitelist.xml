@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="connect-src">
+            <values>
+                <value id="webmaniabr_api" type="host">https://webmaniabr.com</value>
+                <value id="webmaniabr_api_subdomain" type="host">https://api.webmaniabr.com</value>
+                <value id="webmaniabr_nfe" type="host">https://nfe.webmaniabr.com</value>
+            </values>
+        </policy>
+        <policy id="img-src">
+            <values>
+                <value id="webmaniabr_images" type="host">https://webmaniabr.com</value>
+                <value id="webmaniabr_s3" type="host">https://wmbr.s3.amazonaws.com</value>
+            </values>
+        </policy>
+        <policy id="script-src">
+            <values>
+                <value id="webmaniabr_inline" type="keyword">'unsafe-inline'</value>
+            </values>
+        </policy>
+        <policy id="style-src">
+            <values>
+                <value id="webmaniabr_inline_style" type="keyword">'unsafe-inline'</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>

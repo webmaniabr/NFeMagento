@@ -26,7 +26,7 @@ class StatusNfe extends Column
             foreach ($dataSource['data']['items'] as & $item) {
 
                 $order  = $this->_orderRepository->get($item["entity_id"]);
-                $order_id = $item['entity_id'];
+                $order_id = (int) $item['entity_id'];
 
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance(); // Instance of object manager
                 $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
@@ -38,7 +38,7 @@ class StatusNfe extends Column
 
                 if( empty($result) ) { $result = ""; } else { $result = $result[0]['status']; }
 
-                switch (strtolower($result)) {
+                switch (strtolower((string) $result)) {
                     
                     case "aprovado":
                         $nfe_status = "Aprovada";

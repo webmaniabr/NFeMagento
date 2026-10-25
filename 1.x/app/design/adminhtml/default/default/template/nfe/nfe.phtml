@@ -28,15 +28,15 @@
       </thead>
       <tbody>
         <?php foreach($nfe_info as $order_nfe): ?>
-          <tr style="border-bottom:1px solid #000;"><td class="column-columnname"><?php echo $order_nfe['data']; ?></td>
-          <td class="column-columnname"><?php echo $order_nfe['n_serie']; ?></td>
-          <td class="column-columnname"><?php echo $order_nfe['n_nfe']; ?></td>
-          <td class="column-columnname"><?php echo $order_nfe['n_recibo']; ?></td>
-          <td class="column-columnname"><?php echo $order_nfe['chave_acesso']; ?></td>
-          <td class="column-columnname"><a target="_blank" href="<?php echo $order_nfe['url_xml']; ?>">Download XML</a></td>
-          <td class="column-columnname"><a target="_blank" href="<?php echo $order_nfe['url_danfe']; ?>">Visualizar Nota</a></td>
+          <tr style="border-bottom:1px solid #000;"><td class="column-columnname"><?php echo $this->escapeHtml($order_nfe['data']); ?></td>
+          <td class="column-columnname"><?php echo $this->escapeHtml($order_nfe['n_serie']); ?></td>
+          <td class="column-columnname"><?php echo $this->escapeHtml($order_nfe['n_nfe']); ?></td>
+          <td class="column-columnname"><?php echo $this->escapeHtml($order_nfe['n_recibo']); ?></td>
+          <td class="column-columnname"><?php echo $this->escapeHtml($order_nfe['chave_acesso']); ?></td>
+          <td class="column-columnname"><a target="_blank" href="<?php echo $this->escapeHtml($order_nfe['url_xml']); ?>">Download XML</a></td>
+          <td class="column-columnname"><a target="_blank" href="<?php echo $this->escapeHtml($order_nfe['url_danfe']); ?>">Visualizar Nota</a></td>
           <td class="column-columnname">
-            <span class="nfe-status <?php echo $order_nfe['status']; ?>"><?php echo $order_nfe['status']; ?></span>
+            <span class="nfe-status <?php echo $this->escapeHtml($order_nfe['status']); ?>"><?php echo $this->escapeHtml($order_nfe['status']); ?></span>
             <a href="<?php echo Mage::helper("adminhtml")->getUrl("nfe/standard/update/", array('chave_acesso' => $order_nfe['chave_acesso'], 'order_id' => $order_id)); ?>" style="display:block">Atualizar Status</a>
             </td></tr>
         <?php endforeach; ?>

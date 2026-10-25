@@ -1,13 +1,28 @@
 <?php
-include 'Mage/Sales/Model/Observer.php';
+require_once dirname(__FILE__) . '/../inc/Security.php';
+// Load the parent through the Magento autoloader: a second include of an already loaded class is fatal.
+class_exists('Mage_Sales_Model_Observer');
 class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
   static protected $_singletonFlag = false;
 
+  public $consumerKey;
+  public $consumerSecret;
+  public $accessToken;
+  public $accessTokenSecret;
+  public $ambiente_sefaz;
+  public $natureza_operacao;
+  public $ncm;
+  public $classe_imposto;
+  public $cest;
+  public $ean;
+  public $origem;
+  public $uniq_id;
+
   public function emitirNfe($order, $state = false, $status = false, $force = false)
   {
 
-    include 'config.php';
+    include dirname(__FILE__) . '/config.php';
     $data = array();
 
     /* -----------------------------------------------------------
@@ -15,10 +30,11 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
     Documentação: https://webmaniabr.com/docs/rest-api-nfe/
     ------------------------------------------------------------*/
 
-    $this->consumerKey = Mage::getStoreConfig('nfe/section_one/consumer_key', Mage::app()->getStore());
-    $this->consumerSecret = Mage::getStoreConfig('nfe/section_one/consumer_secret', Mage::app()->getStore());
-    $this->accessToken = Mage::getStoreConfig('nfe/section_one/access_token', Mage::app()->getStore());
-    $this->accessTokenSecret = Mage::getStoreConfig('nfe/section_one/access_token_secret', Mage::app()->getStore());
+    WebmaniaNFeSecurity::migrateCredentials();
+    $this->consumerKey = WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/consumer_key', Mage::app()->getStore()));
+    $this->consumerSecret = WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/consumer_secret', Mage::app()->getStore()));
+    $this->accessToken = WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/access_token', Mage::app()->getStore()));
+    $this->accessTokenSecret = WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/access_token_secret', Mage::app()->getStore()));
     $this->ambiente_sefaz = Mage::getStoreConfig('nfe/section_one/ambiente_sefaz', Mage::app()->getStore());
     $this->natureza_operacao = Mage::getStoreConfig('nfe/section_two/natureza_operacao', Mage::app()->getStore());
     $this->ncm = Mage::getStoreConfig('nfe/section_two/codigo_ncm', Mage::app()->getStore());
@@ -35,7 +51,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
     if(!$envio_email || $envio_email == '1') $envio_email = 'on';
 
     if(!$this->uniq_id){
-      $this->uniq_id = md5(uniqid(rand(), true));
+      $this->uniq_id = WebmaniaNFeSecurity::randomToken();
       Mage::getModel('core/config')->saveConfig('nfe/section_one/uniq_get_key', $this->uniq_id);
     }
 
@@ -49,13 +65,16 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
       if(!empty($applied_rule_id)){
         $rule = Mage::getModel('salesrule/rule')->load($applied_rule_id);
         $rule_data = $rule->getData();
-        if($rule_data['simple_action'] == 'by_percent'){
+        if(isset($rule_data['simple_action'], $rule_data['discount_amount']) && $rule_data['simple_action'] == 'by_percent'){
           $percentages_applied[] = $rule_data['discount_amount'];
         }
       }
 
       $orderno = $order->getIncrementId();
       $shipping_address = $order->getShippingAddress();
+      if (!$shipping_address) {
+        return WebmaniaNFeSecurity::error('O pedido não possui endereço de entrega para a emissão da NF-e.');
+      }
 
       $data = array(
         'ID' => (int) $orderno,
@@ -100,7 +119,7 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
       }
 
       // Set user
-      $cpf_cnpj = str_replace( array('/', '.', '-'), '', $order->getData('customer_taxvat'));
+      $cpf_cnpj = WebmaniaNFeSecurity::normalizeDocument($order->getData('customer_taxvat'));
 
       // If the field CNPJ are set uses field CNPJ
       if ($customerData->getData('cnpj')) {
@@ -163,8 +182,9 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
             $data['pedido']['desconto'] -= ($percentage/100) * $total;
           }
 
-          $data['pedido']['total'] = number_format($data['pedido']['total'], 2);
-          $data['pedido']['desconto'] = number_format($data['pedido']['desconto'], 2);
+          // No thousands separator: the value is sent to the API and reused in later arithmetic
+          $data['pedido']['total'] = number_format($data['pedido']['total'], 2, '.', '');
+          $data['pedido']['desconto'] = number_format($data['pedido']['desconto'], 2, '.', '');
           continue;
         }
 
@@ -396,10 +416,11 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
   function updateNotaFiscal($chave_acesso){
 
     $data['chave'] = $chave_acesso;
-    $this->consumerKey = Mage::getStoreConfig('nfe/section_one/consumer_key', Mage::app()->getStore());
-    $this->consumerSecret = Mage::getStoreConfig('nfe/section_one/consumer_secret', Mage::app()->getStore());
-    $this->accessToken = Mage::getStoreConfig('nfe/section_one/access_token', Mage::app()->getStore());
-    $this->accessTokenSecret = Mage::getStoreConfig('nfe/section_one/access_token_secret', Mage::app()->getStore());
+    WebmaniaNFeSecurity::migrateCredentials();
+    $this->consumerKey = WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/consumer_key', Mage::app()->getStore()));
+    $this->consumerSecret = WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/consumer_secret', Mage::app()->getStore()));
+    $this->accessToken = WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/access_token', Mage::app()->getStore()));
+    $this->accessTokenSecret = WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/access_token_secret', Mage::app()->getStore()));
 
     $response = self::connect_webmaniabr( 'GET', 'https://webmaniabr.com/api/1/nfe/consulta/', $data );
     return $response;
@@ -408,95 +429,8 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
 
   //	Conexão com a API
   function connect_webmaniabr( $request, $endpoint, $data ){
-
-      // Verify cURL
-      if (!function_exists('curl_version')){
-        $curl_error = new StdClass;
-        $curl_error->error = 'cURL não localizado! Não é possível obter conexão na API da WebmaniaBR®. Verifique junto ao programador e a sua hospedagem. (PHP: '.phpversion().')';
-        return $curl_error;
-      }
-
-      // Set limits
-      @set_time_limit( 300 );
-      ini_set('max_execution_time', 300);
-      ini_set('max_input_time', 300);
-      ini_set('memory_limit', '256M');
-      if (
-          strpos($endpoint, '/sefaz/') !== false ||
-          strpos($endpoint, '/certificado/') !== false
-      ){
-          $timeout = 15;
-      } else {
-          $timeout = 300;
-      }
-
-      // Header
-      $headers = array(
-        'Cache-Control: no-cache',
-        'Content-Type:application/json',
-        'X-Consumer-Key: '.$this->consumerKey,
-        'X-Consumer-Secret: '.$this->consumerSecret,
-        'X-Access-Token: '.$this->accessToken,
-        'X-Access-Token-Secret: '.$this->accessTokenSecret
-      );
-
-      // Init connection
-      $rest = curl_init();
-      curl_setopt($rest, CURLOPT_CONNECTTIMEOUT , 10);
-      curl_setopt($rest, CURLOPT_TIMEOUT, $timeout);
-      curl_setopt($rest, CURLOPT_URL, $endpoint);
-      curl_setopt($rest, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($rest, CURLOPT_SSL_VERIFYPEER, false);
-      curl_setopt($rest, CURLOPT_SSL_VERIFYHOST, false);
-      curl_setopt($rest, CURLOPT_CUSTOMREQUEST, $request);
-      curl_setopt($rest, CURLOPT_POSTFIELDS, json_encode( $data ));
-      curl_setopt($rest, CURLOPT_HTTPHEADER, $headers);
-      curl_setopt($rest, CURLOPT_FRESH_CONNECT, true);
-      curl_setopt($rest, CURLOPT_FOLLOWLOCATION, 1);
-      curl_setopt($rest, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-      curl_setopt($rest, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_NONE);
-      curl_setopt($rest, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
-      
-      // Connect to API
-      $response = curl_exec($rest);
-      $http_status = curl_getinfo($rest, CURLINFO_HTTP_CODE);
-      $curl_errno = (int) curl_errno($rest);
-      if ($curl_errno){
-          $curl_strerror = curl_strerror($curl_errno);
-      }
-
-      curl_close($rest);
-
-      // Get cURL errors
-      $curl_error = new StdClass;
-      if ($curl_errno){
-        // Get User IP
-        $ip = $_SERVER['CF-Connecting-IP']; // CloudFlare
-        if (!$ip){
-          $ip = $_SERVER['REMOTE_ADDR']; // Standard
-        }
-        if (is_array($ip)){
-          $ip = $ip[0];
-        }
-
-        // cURL errors
-        if (!$http_status){
-          $curl_error->error = 'Não foi possível obter conexão na API da WebmaniaBR®, possível relação com bloqueio no Firewall ou versão antiga do PHP. Verifique junto ao programador e a sua hospedagem a comunicação na URL: https://webmaniabr.com/api/. (cURL: '.$curl_strerror.' | PHP: '.phpversion().' | cURL: '.curl_version()['version'].')';
-        } elseif ($http_status == 500) {
-          $curl_error->error = 'Ocorreu um erro ao processar a sua requisição. A nossa equipe já foi notificada, em caso de dúvidas entre em contato com o suporte da WebmaniaBR®. (cURL: '.$curl_strerror.' | HTTP Code: '.$http_status.' | IP: '.$ip.')';
-        } elseif (!in_array($http_status, array(401, 403))) {
-          $curl_error->error = 'Não foi possível se conectar na API da WebmaniaBR®. Em caso de dúvidas entre em contato com o suporte da WebmaniaBR®. (cURL: '.$curl_strerror.' | HTTP Code: '.$http_status.' | IP: '.$ip.')';
-        }
-      }
-
-      // Return
-      if ( isset($curl_error->error) ){
-          return $curl_error;
-      } else {
-          return json_decode($response);
-      }
-
-  }
+      return WebmaniaNFeSecurity::jsonRequest($request, $endpoint, $data, array('consumer_key' => $this->consumerKey, 'consumer_secret' => $this->consumerSecret, 'access_token' => $this->accessToken, 'access_token_secret' => $this->accessTokenSecret));
+}
 
   public function getSalesOrderViewInfo( Varien_Event_Observer $observer ) {
 
@@ -531,107 +465,65 @@ class WebmaniaBR_NFe_Model_Observer extends Mage_Sales_Model_Observer {
   }
 
   public function listenNotification(){
-
-    if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['retorno_nfe']) && $_GET['order_id']){
-
-
-      $order_id = (int) $_GET['order_id'];
-      $uniq_key = Mage::getStoreConfig('nfe/section_one/uniq_get_key', Mage::app()->getStore());
-
-      if($_GET['retorno_nfe'] == $uniq_key){
-        $order = Mage::getModel('sales/order')->loadByIncrementId($order_id);
-        $order_nfe_info = unserialize(base64_decode($order->getData('all_nfe')));
-
-        if(!$order_nfe_info) $order_nfe_info = array();
-
-        foreach($order_nfe_info as $key => $nfe){
-          $numero_nfe = $nfe['n_nfe'];
-
-          $current_status = $nfe['status'];
-          $received_status = $_POST['status'];
-
-          if($numero_nfe == $_POST['nfe'] && $current_status != $received_status){
-
-            $order_nfe_info[$key]['status'] = $received_status;
-            $nfe_info_str = base64_encode(serialize($order_nfe_info));
-            $order->setData('all_nfe', $nfe_info_str);
-            $order->save();
-            break;
-          }
-
-        }
-
-      }
-
-      die();
-
+    if (!isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] !== 'POST' ||
+        !isset($_GET['retorno_nfe'], $_GET['order_id'], $_POST['nfe']) || !is_scalar($_GET['order_id']) ||
+        !ctype_digit((string) $_GET['order_id']) || !is_scalar($_POST['nfe']) ||
+        !WebmaniaNFeSecurity::equals(Mage::getStoreConfig('nfe/section_one/uniq_get_key', Mage::app()->getStore()), $_GET['retorno_nfe'])) { return; }
+    $order = Mage::getModel('sales/order')->loadByIncrementId((int) $_GET['order_id']);
+    if (!$order->getId()) { return; }
+    $invoices = WebmaniaNFeSecurity::invoices(base64_decode((string) $order->getData('all_nfe')));
+    foreach ($invoices as $key => $invoice) {
+        if (!is_array($invoice) || !isset($invoice['n_nfe'], $invoice['chave_acesso']) || (string) $invoice['n_nfe'] !== (string) $_POST['nfe']) { continue; }
+        $response = $this->updateNotaFiscal($invoice['chave_acesso']);
+        if (isset($response->error) || !isset($response->chave) || $response->chave !== $invoice['chave_acesso']) { return; }
+        $invoices[$key]['status'] = $response->status;
+        $order->setData('all_nfe', base64_encode(serialize($invoices)))->save();
+        return;
     }
 
-  }
+}
 
   public function imprimirDanfe($orders, $type) {
-
-    require_once(dirname(__FILE__) . '/../inc/pdf/PDFMerger.php');
-
-    //Create folder if it doesn't exist
-    $path = Mage::getBaseDir('media') . '/pdf_files';
-    if (!file_exists($path)) mkdir($path);
-
+    require_once dirname(__FILE__) . '/../inc/pdf/PDFMerger.php';
+    $directory = WebmaniaNFeSecurity::privateDirectory();
+    WebmaniaNFeSecurity::migrateCredentials();
+    $credentials = array('consumer_key' => WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/consumer_key')),
+        'consumer_secret' => WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/consumer_secret')),
+        'access_token' => WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/access_token')),
+        'access_token_secret' => WebmaniaNFeSecurity::decryptCredential(Mage::getStoreConfig('nfe/section_one/access_token_secret')));
     $pdf = new PDFMerger();
-
-    $count = 0;
-    foreach ($orders as $order_id) {
-
-      //Get order's nfe info
-      $order = Mage::getModel('sales/order')->load($order_id);
-      $order_nfe_info = unserialize(base64_decode($order->getData('all_nfe')));
-
-      if ($order_nfe_info) {
-
-        $info = $order_nfe_info[0];
-        
-        //Define danfe url
+    $sources = array();
+    foreach (is_array($orders) ? $orders : array() as $id) {
+        $order = Mage::getModel('sales/order')->load((int) $id);
+        $invoices = WebmaniaNFeSecurity::invoices(base64_decode((string) $order->getData('all_nfe')));
+        $info = $invoices ? end($invoices) : array();
+        if (!is_array($info) || empty($info['url_danfe'])) { continue; }
         $url = $info['url_danfe'];
-        if ($type == 'danfe_simples') {
-          $url = str_replace('/danfe/', '/danfe/simples/', $url);
-        }
-        else if ($type == 'danfe_etiqueta') {
-          $url = str_replace('/danfe/', '/danfe/etiqueta/', $url);
-        }
-
-        //Add to pdf merger
-        $path_file = "{$path}/{$info['chave']}.pdf";
-        file_put_contents($path_file, file_get_contents($url));
-
-			  if (file_exists($path_file)) {
-          $pdf->addPDF($path_file, 'all');
-          $count++;
-        }
-
-      }
-
+        if ($type === 'danfe_simples') { $url = str_replace('/danfe/', '/danfe/simples/', $url); }
+        if ($type === 'danfe_etiqueta') { $url = str_replace('/danfe/', '/danfe/etiqueta/', $url); }
+        $content = WebmaniaNFeSecurity::download($url, $credentials);
+        if ($content === false) { continue; }
+        $source = $directory . WebmaniaNFeSecurity::randomToken() . '.pdf';
+        if (file_put_contents($source, $content) !== false) { $sources[] = $source; $pdf->addPDF($source, 'all'); }
     }
-
-    //Create pdf with all order's danfe
-    if ($count > 0) {
-
-      $filename = time()."-".random_int(1, 10000000000);
-		  $result = $pdf->merge('file', "{$path}/{$filename}.pdf");
-      $link_pdf = Mage::getBaseUrl('media') . "pdf_files/{$filename}.pdf";
-      Mage::getSingleton('core/session')->addSuccess("Arquivo de impressão gerado com sucesso. <a href='$link_pdf' target='_blank'>Clique aqui</a> para acessá-lo.");
-
+    $path = $directory . 'danfe.pdf';
+    $result = false;
+    try { if ($sources) { $result = $pdf->merge('file', $path); } }
+    catch (Exception $e) { $result = false; }
+    catch (Throwable $e) { $result = false; }
+    foreach ($sources as $source) { if (is_file($source)) { unlink($source); } }
+    $content = $result && is_file($path) ? file_get_contents($path) : false;
+    if (is_file($path)) { unlink($path); }
+    rmdir($directory);
+    if ($content !== false) {
+        Mage::app()->getResponse()->setHeader('Content-Type', 'application/pdf', true)
+            ->setHeader('Content-Disposition', 'attachment; filename="danfe.pdf"', true)
+            ->setHeader('Cache-Control', 'no-store', true)->setBody($content)->sendResponse();
+        exit;
     }
-    else {
+    Mage::getSingleton('core/session')->addError('Não foi possível gerar o PDF das notas fiscais.');
+    Mage::app()->getResponse()->setRedirect(Mage::helper('adminhtml')->getUrl('adminhtml/sales_order/'));
 
-      Mage::getSingleton('core/session')->addError("O pedido não possui nota fiscal.");
-
-    }
-
-    //Redirect
-    session_write_close();
-    $redirect_url = Mage::helper('adminhtml')->getUrl('adminhtml/sales_order/');
-    Mage::app()->getResponse()->setRedirect($redirect_url);
-
-  }
+}
 
 }

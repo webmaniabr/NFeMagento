@@ -19,6 +19,8 @@ class ImprimirDanfeSimples extends \Magento\Sales\Controller\Adminhtml\Order\Abs
     
   protected $nfeData;
 
+  protected $authSession;
+
   public function __construct(
       Context $context,
       Filter $filter,
@@ -62,39 +64,30 @@ class ImprimirDanfeSimples extends \Magento\Sales\Controller\Adminhtml\Order\Abs
     
     }
 
-    if (!empty($danfes)) {
-
-      $directory = $dir->getPath('media') . '/pdf_files/';
-      if (!file_exists($directory)) {
-        mkdir($directory);
-      }
-
-      $pdf = new PDFMerger();
-
-      foreach ($danfes as $danfe) {
-
-        file_put_contents("{$directory}/{$danfe['chave']}.pdf", file_get_contents($danfe['url']));
-			  $pdf->addPDF("{$directory}/{$danfe['chave']}.pdf", 'all');
-
-      }
-
-      $filename = time()."-".random_int(1, 10000000000);
-		  $result = $pdf->merge('file', "{$directory}/{$filename}.pdf");
-
+    $directory = \WebmaniaNFeSecurity::privateDirectory();
+    $sources = array();
+    $pdf = new PDFMerger();
+    foreach ($danfes as $danfe) {
+        $content = \WebmaniaNFeSecurity::download($danfe['url'], $this->nfeData->get_access_permissions());
+        if ($content === false) { continue; }
+        $source = $directory . \WebmaniaNFeSecurity::randomToken() . '.pdf';
+        if (file_put_contents($source, $content) !== false) { $sources[] = $source; $pdf->addPDF($source, 'all'); }
     }
-
-    $resultRedirect = $this->resultRedirectFactory->create();
-    if (!$result) {
-      $this->messageManager->addError('Erro ao gerar o PDF do DANFE das notas fiscais');
-      
-      $resultRedirect->setPath($this->getComponentRefererUrl());
-      return $resultRedirect;
+    $path = $directory . 'danfe.pdf';
+    $result = false;
+    try { if ($sources) { $result = $pdf->merge('file', $path); } }
+    catch (\Exception $e) { $result = false; }
+        catch (\Throwable $e) { $result = false; }
+    foreach ($sources as $source) { if (is_file($source)) { unlink($source); } }
+    $content = $result && is_file($path) ? file_get_contents($path) : false;
+    if (is_file($path)) { unlink($path); }
+    rmdir($directory);
+    if ($content === false) {
+        $this->messageManager->addError('Não foi possível gerar o PDF das notas fiscais.');
+        $redirect = $this->resultRedirectFactory->create();
+        return $redirect->setPath($this->getComponentRefererUrl());
     }
-
-    $redirect_url = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . "pdf_files/{$filename}.pdf";
-    $resultRedirect->setPath($redirect_url);
-    return $resultRedirect;
-
-  }
+    return $objectManager->get('Magento\Framework\App\Response\Http\FileFactory')->create('danfe.pdf', $content, 'var', 'application/pdf');
+}
 
 }

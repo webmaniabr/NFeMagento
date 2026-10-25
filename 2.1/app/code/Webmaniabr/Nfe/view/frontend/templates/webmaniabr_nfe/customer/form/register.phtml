@@ -52,7 +52,7 @@
         <fieldset class="fieldset address">
             <legend class="legend"><span><?php /* @escapeNotVerified */ echo __('Address Information') ?></span></legend><br>
             <input type="hidden" name="create_address" value="1" />
-            <?php if ($this->helper('Webmania\Nfe\Helper\DataAddress')->isUsedInForm('company')): ?>
+            <?php if ($this->helper('Webmaniabr\Nfe\Helper\DataAddress')->isUsedInForm('company')): ?>
                 <?php $attributeValidationClass = $this->helper('Magento\Customer\Helper\Address')->getAttributeValidationClass('company'); ?>
                 <div class="field company<?php echo (strpos($attributeValidationClass, 'required-entry')) ? ' required' : '' ?>">
                     <label for="company" class="label"><span><?php /* @escapeNotVerified */ echo __('Company') ?></span></label>
@@ -61,7 +61,7 @@
                     </div>
                 </div>
             <?php endif; ?>
-            <?php if ($this->helper('Webmania\Nfe\Helper\DataAddress')->isUsedInForm('telephone')): ?>
+            <?php if ($this->helper('Webmaniabr\Nfe\Helper\DataAddress')->isUsedInForm('telephone')): ?>
                 <?php $attributeValidationClass = $this->helper('Magento\Customer\Helper\Address')->getAttributeValidationClass('telephone'); ?>
                 <div class="field telephone<?php echo (strpos($attributeValidationClass, 'required-entry')) ? ' required' : '' ?>">
                     <label for="telephone" class="label"><span><?php /* @escapeNotVerified */ echo __('Phone Number') ?></span></label>
@@ -73,29 +73,29 @@
 
             <?php $_streetValidationClass = $this->helper('Magento\Customer\Helper\Address')->getAttributeValidationClass('street'); ?>
             <?php $_i = 1; ?>
-            <?php if ($this->helper('Webmania\Nfe\Helper\DataAddress')->getValidationClassesForLine($_i)): ?>
-                <?php $_streetValidationClass .= $this->helper('Webmania\Nfe\Helper\DataAddress')->getValidationClassesForLine($_i); ?>
+            <?php if ($this->helper('Webmaniabr\Nfe\Helper\DataAddress')->getValidationClassesForLine($_i)): ?>
+                <?php $_streetValidationClass .= $this->helper('Webmaniabr\Nfe\Helper\DataAddress')->getValidationClassesForLine($_i); ?>
             <?php endif; ?>
             <div class="field street required">
                 <label for="street" class="label"><span><?php /* @escapeNotVerified */ echo __('Street Address') ?></span></label>
                 <div class="control">
                     <label class="label" for="street_<?php /* @escapeNotVerified */ echo $_i ?>">
-                        <span><?php /* @escapeNotVerified */ echo $this->helper('Webmania\Nfe\Helper\DataAddress')->getLineLabel($_i) ?></span>
+                        <span><?php /* @escapeNotVerified */ echo $this->helper('Webmaniabr\Nfe\Helper\DataAddress')->getLineLabel($_i) ?></span>
                     </label>
                     <input type="text" name="street[1]" value="<?php echo $block->escapeHtml($block->getFormData()->getStreet(0)) ?>" title="<?php /* @escapeNotVerified */ echo __('Street Address') ?>" id="street_1" class="input-text <?php /* @escapeNotVerified */ echo $_streetValidationClass ?>">
                     <div class="nested">
                         <?php for ($_i = 2, $_n = $this->helper('Magento\Customer\Helper\Address')->getStreetLines(); $_i <= $_n; $_i++): ?>
                             <?php $_streetValidationClass = $this->helper('Magento\Customer\Helper\Address')->getAttributeValidationClass('street'); ?>
                             <?php $_streetValidationClass = trim(str_replace('required-entry', '', $_streetValidationClass)); ?>
-                            <?php if ($this->helper('Webmania\Nfe\Helper\DataAddress')->getValidationClassesForLine($_i)): ?>
-                                <?php $_streetValidationClass .= $this->helper('Webmania\Nfe\Helper\DataAddress')->getValidationClassesForLine($_i); ?>
+                            <?php if ($this->helper('Webmaniabr\Nfe\Helper\DataAddress')->getValidationClassesForLine($_i)): ?>
+                                <?php $_streetValidationClass .= $this->helper('Webmaniabr\Nfe\Helper\DataAddress')->getValidationClassesForLine($_i); ?>
                             <?php endif; ?>
                             <div class="field">
                                 <label class="label" for="street_<?php /* @escapeNotVerified */ echo $_i ?>">
-                                    <span><?php /* @escapeNotVerified */ echo $this->helper('Webmania\Nfe\Helper\DataAddress')->getLineLabel($_i) ?></span>
+                                    <span><?php /* @escapeNotVerified */ echo $this->helper('Webmaniabr\Nfe\Helper\DataAddress')->getLineLabel($_i) ?></span>
                                 </label>
                                 <div class="control">
-                                    <input type="text" name="street[<?php echo $_i; ?>]" <?php if ($this->helper('Webmania\Nfe\Helper\DataAddress')->getValidationMaxLength($_i)) { echo 'maxlength="' . $this->helper('Webmania\Nfe\Helper\DataAddress')->getValidationMaxLength($_i) . '"' ; } ?> <?php if ($this->helper('Webmania\Nfe\Helper\DataAddress')->getValidationMinLength($_i)) { echo 'minlength="' . $this->helper('Webmania\Nfe\Helper\DataAddress')->getValidationMinLength($_i) . '"' ; } ?> value="<?php echo $block->escapeHtml($block->getFormData()->getStreetLine($_i - 1)) ?>" title="<?php /* @escapeNotVerified */ echo $this->helper('Webmania\Nfe\Helper\DataAddress')->getLineLabel($_i) ?>" id="street_<?php /* @escapeNotVerified */ echo $_i ?>" class="input-text <?php /* @escapeNotVerified */ echo $_streetValidationClass ?>">
+                                    <input type="text" name="street[<?php echo $_i; ?>]" <?php if ($this->helper('Webmaniabr\Nfe\Helper\DataAddress')->getValidationMaxLength($_i)) { echo 'maxlength="' . $this->helper('Webmaniabr\Nfe\Helper\DataAddress')->getValidationMaxLength($_i) . '"' ; } ?> <?php if ($this->helper('Webmaniabr\Nfe\Helper\DataAddress')->getValidationMinLength($_i)) { echo 'minlength="' . $this->helper('Webmaniabr\Nfe\Helper\DataAddress')->getValidationMinLength($_i) . '"' ; } ?> value="<?php echo $block->escapeHtml($block->getFormData()->getStreetLine($_i - 1)) ?>" title="<?php /* @escapeNotVerified */ echo $this->helper('Webmaniabr\Nfe\Helper\DataAddress')->getLineLabel($_i) ?>" id="street_<?php /* @escapeNotVerified */ echo $_i ?>" class="input-text <?php /* @escapeNotVerified */ echo $_streetValidationClass ?>">
                                 </div>
                             </div>
                         <?php endfor; ?>
@@ -233,7 +233,7 @@ require([
                 "postcodeId": "#zip",
                 "form": "#form-validate",
                 "regionJson": <?php /* @escapeNotVerified */ echo $this->helper('Magento\Directory\Helper\Data')->getRegionJson() ?>,
-                "defaultRegion": "<?php /* @escapeNotVerified */ echo $block->getFormData()->getRegionId() ?>",
+                "defaultRegion": "<?php $wmbrRegionId = (int) $block->getFormData()->getRegionId(); echo $wmbrRegionId ? $wmbrRegionId : '' ?>",
                 "countriesWithOptionalZip": <?php /* @escapeNotVerified */ echo $this->helper('Magento\Directory\Helper\Data')->getCountriesWithOptionalZip(true) ?>
             }
         }

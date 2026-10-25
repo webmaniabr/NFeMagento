@@ -172,7 +172,7 @@
                 "postcodeId": "#zip",
                 "form": "#form-validate",
                 "regionJson": <?php /* @escapeNotVerified */ echo $this->helper('Magento\Directory\Helper\Data')->getRegionJson() ?>,
-                "defaultRegion": "<?php /* @escapeNotVerified */ echo $block->getRegionId() ?>",
+                "defaultRegion": "<?php $wmbrRegionId = (int) $block->getRegionId(); echo $wmbrRegionId ? $wmbrRegionId : '' ?>",
                 "countriesWithOptionalZip": <?php /* @escapeNotVerified */ echo $this->helper('Magento\Directory\Helper\Data')->getCountriesWithOptionalZip(true) ?>
             }
         }

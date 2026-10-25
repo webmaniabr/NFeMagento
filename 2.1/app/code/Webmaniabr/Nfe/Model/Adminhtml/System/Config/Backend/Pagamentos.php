@@ -1,6 +1,7 @@
 <?php
 
 namespace Webmaniabr\Nfe\Model\Adminhtml\System\Config\Backend;
+require_once dirname(__FILE__) . '/../../../../../Helper/Security.php';
 
 use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -36,8 +37,8 @@ class Pagamentos extends Value
         ScopeConfigInterface $config,
         TypeListInterface $cacheTypeList,
         Random $mathRandom,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        $resource = null,
+        $resourceCollection = null,
         array $data = []
     ) {
         $this->mathRandom = $mathRandom;
@@ -53,6 +54,11 @@ class Pagamentos extends Value
     {
         $value = $this->getValue();
         $aux = 0;
+        
+        // Already-encoded values (e.g. config:set) are kept as they are
+        if ( !is_array($value) ) {
+            return $this;
+        }
         
         foreach ($value as $data) {
             if ( 
@@ -73,6 +79,8 @@ class Pagamentos extends Value
             $this->setValue(serialize($result));
             return $this;            
         } else {
+            // No complete row: store an empty mapping instead of the raw form array
+            $this->setValue('');
             return null;
         }
 
@@ -86,7 +94,7 @@ class Pagamentos extends Value
     public function afterLoad()
     {
 
-        $value = unserialize($this->getValue());
+        $value = \WebmaniaNFeSecurity::decode($this->getValue());
 
         if (is_array($value)) {
         

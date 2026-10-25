@@ -15,6 +15,8 @@ class PaymentMethods implements MessageInterface
   
   protected $nfeData;
   
+  protected $payment_methods;
+  
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         NfeData $nfeData

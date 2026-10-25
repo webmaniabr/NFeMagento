@@ -26,7 +26,8 @@
                     <fields>
                       <consumer_key>
                           <label>Consumer key</label>
-                          <frontend_type>text</frontend_type>
+                          <frontend_type>password</frontend_type>
+                          <backend_model>nfe/system_config_backend_credential</backend_model>
                           <sort_order>1</sort_order>
                           <show_in_default>1</show_in_default>
                           <show_in_website>1</show_in_website>
@@ -34,7 +35,8 @@
                       </consumer_key>
                       <consumer_secret>
                           <label>Consumer secret</label>
-                          <frontend_type>text</frontend_type>
+                          <frontend_type>password</frontend_type>
+                          <backend_model>nfe/system_config_backend_credential</backend_model>
                           <sort_order>2</sort_order>
                           <show_in_default>1</show_in_default>
                           <show_in_website>1</show_in_website>
@@ -42,7 +44,8 @@
                       </consumer_secret>
                       <access_token>
                           <label>Access Token</label>
-                          <frontend_type>text</frontend_type>
+                          <frontend_type>password</frontend_type>
+                          <backend_model>nfe/system_config_backend_credential</backend_model>
                           <sort_order>3</sort_order>
                           <show_in_default>1</show_in_default>
                           <show_in_website>1</show_in_website>
@@ -50,7 +53,8 @@
                       </access_token>
                       <access_token_secret>
                           <label>Access Token Secret</label>
-                          <frontend_type>text</frontend_type>
+                          <frontend_type>password</frontend_type>
+                          <backend_model>nfe/system_config_backend_credential</backend_model>
                           <sort_order>4</sort_order>
                           <show_in_default>1</show_in_default>
                           <show_in_website>1</show_in_website>

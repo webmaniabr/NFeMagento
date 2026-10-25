@@ -17,6 +17,20 @@ class Certificado implements MessageInterface
   
   protected $nfeData;
   
+  protected $_date;
+  
+  protected $type_error;
+  
+  protected $error_type;
+  
+  protected $expiration;
+  
+  protected $cache;
+  
+  protected $interval;
+  
+  protected $certificado;
+  
   protected $date;
   
     public function __construct(
@@ -134,7 +148,7 @@ class Certificado implements MessageInterface
         $this->certificado = $this->nfeData->connect_webmaniabr( 'GET', 'https://webmaniabr.com/api/1/nfe/certificado/', "" );
         
         // Check if the tokens are valid
-        if ( !is_object($this->certificado) || isset($this->certificado->error) ) {
+        if ( !is_object($this->certificado) || isset($this->certificado->error) || !isset($this->certificado->expiration) ) {
             $this->error_type = "chave_invalida";
             return true;
         }
